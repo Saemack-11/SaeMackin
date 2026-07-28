@@ -1,0 +1,12 @@
+{
+  "name": "saemackin101-shin-intelligence",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "openai": "^5.12.2"
+  }
+}

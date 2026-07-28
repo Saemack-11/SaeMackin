@@ -1,5 +1,5 @@
 const PERSONAS=[
-{name:'Romantic Sae',icon:'❤️',desc:'Warm, expressive, gentlemanly and lightly seductive.'},{name:'Flirtatious Sae',icon:'🔥',desc:'Confident observation, playful heat and zero chasing.'},{name:'Business Sae',icon:'💼',desc:'Strategic, persuasive and professional without sounding robotic.'},{name:'Listener Sae',icon:'💬',desc:'Patient, validating and present before trying to fix anything.'},{name:'Frustrated Sae',icon:'🌫️',desc:'Honest irritation with composure and clean boundaries.'},{name:'Logical Angry Sae',icon:'💢',desc:'Firm, factual and controlled when disrespect enters the room.'},{name:'Toxic Sae',icon:'😈',desc:'Playful danger, witty pettiness and a disciplined smirk.'},{name:'Motivator Sae',icon:'💡',desc:'Real encouragement without motivational-speaker corniness.'},{name:'Comedian Sae',icon:'🎤',desc:'Timing, room reading, quick recovery and heckler composure.'},{name:'Advisor Sae',icon:'🧠',desc:'Balanced analysis, honest patterns and practical next moves.'},{name:'Negotiator Sae',icon:'🤝',desc:'Calm leverage, clear value and mutually useful terms.'},{name:'Grounded Sae',icon:'🧘🏾',desc:'Mature, peaceful, accountable and centered.'}
+{name:'Romantic Sae',slug:'romantic',icon:'❤️',desc:'Warm, expressive, gentlemanly and lightly seductive.'},{name:'Flirtatious Sae',slug:'flirtatious',icon:'🔥',desc:'Confident observation, playful heat and zero chasing.'},{name:'Business Sae',slug:'business',icon:'💼',desc:'Strategic, persuasive and professional without sounding robotic.'},{name:'Listener Sae',slug:'listener',icon:'💬',desc:'Patient, validating and present before trying to fix anything.'},{name:'Frustrated Sae',slug:'frustrated',icon:'🌫️',desc:'Honest irritation with composure and clean boundaries.'},{name:'Logical Angry Sae',slug:'logical-angry',icon:'💢',desc:'Firm, factual and controlled when disrespect enters the room.'},{name:'Toxic Sae',slug:'toxic',icon:'😈',desc:'Playful danger, witty pettiness and a disciplined smirk.'},{name:'Motivator Sae',slug:'motivator',icon:'💡',desc:'Real encouragement without motivational-speaker corniness.'},{name:'Comedian Sae',slug:'comedian',icon:'🎤',desc:'Timing, room reading, quick recovery and heckler composure.'},{name:'Advisor Sae',slug:'advisor',icon:'🧠',desc:'Balanced analysis, honest patterns and practical next moves.'},{name:'Negotiator Sae',slug:'negotiator',icon:'🤝',desc:'Calm leverage, clear value and mutually useful terms.'},{name:'Grounded Sae',slug:'grounded',icon:'🧘🏾',desc:'Mature, peaceful, accountable and centered.'}
 ];
 const REL=['New interest','Dating','Partner','Friend','Family','Co-parent','Client','Employer or dispatcher','Authority or legal professional','Stranger'];
 const GOALS=['Build attraction','Make them laugh','Reassure them','Let them feel heard','Motivate them','Set a boundary','Get clarity','Repair the connection','Negotiate an agreement','Respond professionally','End the conversation'];
@@ -10,7 +10,7 @@ const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const store={persona:localStorage.sm_persona||'Grounded Sae',styles:new Set(JSON.parse(localStorage.sm_styles||'[]')),generations:+(localStorage.sm_generations||0),usage:JSON.parse(localStorage.sm_usage||'{}'),ratings:JSON.parse(localStorage.sm_ratings||'{}'),saved:JSON.parse(localStorage.sm_saved||'[]'),last:null};
 function show(v){$$('.view').forEach(x=>x.classList.toggle('active',x.dataset.view===v));$$('[data-nav]').forEach(x=>x.classList.toggle('active',x.dataset.nav===v));scrollTo({top:0,behavior:'smooth'})}
 $$('[data-nav]').forEach(b=>b.onclick=()=>show(b.dataset.nav));$$('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));$('#backToStudio').onclick=()=>show('studio');
-function renderPersonas(){const box=$('#personas');box.innerHTML='';PERSONAS.forEach(p=>{const b=document.createElement('button');b.className='persona'+(p.name===store.persona?' active':'');b.innerHTML=`<span class="emoji">${p.icon}</span><span class="pname">${p.name}</span>`;b.onclick=()=>{store.persona=p.name;localStorage.sm_persona=p.name;renderPersonas();renderMode()};box.appendChild(b)})}
+function renderPersonas(){const box=$('#personas');box.innerHTML='';PERSONAS.forEach(p=>{const b=document.createElement('button');b.className='persona'+(p.name===store.persona?' active':'');b.style.backgroundImage=`linear-gradient(180deg,transparent 42%,rgba(0,0,0,.96)),url("assets/persona-${p.slug}.jpg?v=4")`;b.innerHTML=`<span class="emoji">${p.icon}</span><span class="pname">${p.name}</span>`;b.onclick=()=>{store.persona=p.name;localStorage.sm_persona=p.name;renderPersonas();renderMode()};box.appendChild(b)})}
 function renderMode(){const p=PERSONAS.find(x=>x.name===store.persona);$('#modeIcon').textContent=p.icon;$('#modeName').textContent=p.name;$('#modeDesc').textContent=p.desc;$('#meter').style.height=`${20+(+$('#intensity').value*14)}%`}
 function fill(el,a){el.innerHTML=a.map(x=>`<option>${x}</option>`).join('')}fill($('#relationship'),REL);fill($('#goal'),GOALS);
 function renderChips(){const box=$('#chips');box.innerHTML='';STYLES.forEach(s=>{const b=document.createElement('button');b.className='chip'+(store.styles.has(s)?' active':'');b.textContent=s;b.onclick=()=>{store.styles.has(s)?store.styles.delete(s):store.styles.add(s);localStorage.sm_styles=JSON.stringify([...store.styles]);renderChips()};box.appendChild(b)})}
@@ -20,8 +20,82 @@ function opener(p){return {'Romantic Sae':'I appreciate you being real with me. 
 function core(g){return {'Build attraction':'I like learning the real you, so I’m not rushing the vibe or forcing an outcome. Attraction is obvious; chemistry is the part worth paying attention to.','Make them laugh':'I’m keeping my composure, but you definitely walked into that one and I would be disrespecting the moment if I didn’t laugh.','Reassure them':'You’re not carrying this by yourself, and one difficult moment does not erase everything you’ve already built.','Let them feel heard':'I’m not trying to fix you before I fully understand you. Tell me the part that has been sitting heaviest on you.','Motivate them':'Handle the next move in front of you. Progress does not need to be loud to be real.','Set a boundary':'I can understand your perspective without accepting something that keeps disturbing my peace.','Get clarity':'I would rather ask directly than build a conclusion from assumptions. What did you mean when you said that?','Repair the connection':'I care more about understanding each other than proving who was right in one moment.','Negotiate an agreement':'The best move is one that protects the relationship while making the expectations and value clear.','Respond professionally':'Please confirm the next step, responsible party and expected timeline so we can move forward cleanly.','End the conversation':'I respect what was shared, but I’m not going to keep forcing a conversation that no longer feels mutual.'}[g]}
 function close(r){return {'New interest':'We can take it day by day and let the chemistry tell the truth.','Dating':'I’m open to seeing where this grows as long as we both stay honest.','Partner':'We’re on the same team, even when the moment feels off.','Friend':'I’m here as your friend, not as somebody waiting to judge you.','Family':'Family does not mean avoiding hard conversations; it means handling them with care.','Co-parent':'The children and a respectful working relationship need to stay at the center.','Client':'I value the opportunity and want the final agreement to work cleanly for everyone.','Employer or dispatcher':'I’m ready to perform; I just need the terms and expectations to be clear.','Authority or legal professional':'I want the record to be accurate, respectful and supported by the relevant facts.','Stranger':'No pressure either way. I’m just matching the energy respectfully.'}[r]}
 function craft(temp='authentic'){let p=store.persona,r=$('#relationship').value,g=$('#goal').value,l=+$('#intensity').value,s=[...store.styles];if(temp==='safe'){p='Grounded Sae';l=2;s=[...new Set([...s,'Shorter'])]}if(temp==='turned'){l=5;s=[...new Set([...s,'More direct','Add humor'])]}let a=opener(p),b=core(g),c=close(r),x=[];if(s.includes('More flirty')||p==='Flirtatious Sae')x.push('Don’t get it confused though—I’m definitely attracted to you; I just know attraction is the easy part.');if(s.includes('Add humor')||p==='Comedian Sae')x.push('And yes, I’m laughing, but I’m still paying attention.');if(s.includes('More compassionate'))x.push('I know there may be more underneath this than what fits in one message.');if(s.includes('More direct'))x.push('So I’m saying it plainly instead of dressing it up.');if(s.includes('More serious'))x.push('I’m taking the situation seriously and I don’t want the main point getting lost.');if(l>=4)x.push('I’m not scared to say what I mean, but I’m not here to pressure you either.');if(l===5)x.push('That’s the unfiltered truth—still respectful, still composed.');if(s.includes('More slang'))x.push('That’s just me keeping it a buck.');let out=`${a}\n\n${b}${x.length?' '+x.join(' '):''}\n\n${c}`;if(s.includes('Shorter'))out=`${a} ${b}`;if(s.includes('Voice-message style'))out='Look, '+out.charAt(0).toLowerCase()+out.slice(1);return out}
-function analyze(){const text=$('#message').value.trim().replace(/\s+/g,' ');if(!text){toast('Drop the message first');$('#message').focus();return}const tone=inferTone(text),alts={safe:craft('safe'),authentic:craft('authentic'),turned:craft('turned')};store.last={reply:alts.authentic,alts,tone,persona:store.persona,goal:$('#goal').value,relationship:$('#relationship').value,source:text,date:new Date().toISOString()};store.generations++;store.usage[store.persona]=(store.usage[store.persona]||0)+1;localStorage.sm_generations=store.generations;localStorage.sm_usage=JSON.stringify(store.usage);$('#resultTitle').textContent=`${store.persona} response ready`;$('#replyText').textContent=alts.authentic;$('#roomRead').innerHTML=[['Their energy',tone[0]],['What it may mean',tone[1]],['Best move',tone[2]],['Composure check',`Calibrated for ${$('#relationship').value}. Avoids thirst, unnecessary escalation, fake certainty and overexplaining.`]].map(x=>`<div class="readRow"><strong>${x[0]}</strong><span>${x[1]}</span></div>`).join('');$('#alternateText').textContent=alts.safe;$$('.altTabs button').forEach((x,i)=>x.classList.toggle('active',i===0));show('results');renderStats()}
-$('#analyzeBtn').onclick=analyze;$('#pasteBtn').onclick=async()=>{try{$('#message').value=await navigator.clipboard.readText();toast('Pasted')}catch{toast('Press and hold inside the box to paste')}};$('#copyReply').onclick=async()=>{await navigator.clipboard.writeText($('#replyText').textContent);toast('Reply copied')};$$('.altTabs button').forEach(b=>b.onclick=()=>{$$('.altTabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#alternateText').textContent=store.last.alts[b.dataset.alt]});$('#useAlternate').onclick=()=>{$('#replyText').textContent=$('#alternateText').textContent;store.last.reply=$('#replyText').textContent;toast('Version selected')};$$('[data-rate]').forEach(b=>b.onclick=()=>{store.ratings[b.dataset.rate]=(store.ratings[b.dataset.rate]||0)+1;localStorage.sm_ratings=JSON.stringify(store.ratings);toast(`${b.dataset.rate} saved`);renderStats()});$('#savePlaybook').onclick=()=>{if(!store.last)return;store.saved.unshift({...store.last,reply:$('#replyText').textContent});store.saved=store.saved.slice(0,60);localStorage.sm_saved=JSON.stringify(store.saved);renderSaved();renderStats();toast('Saved to Playbook')};
+function getPreferenceProfile(){
+ const ratings=store.ratings||{};
+ const approved=[];
+ const rejected=[];
+ if((ratings["Nailed it"]||0)>0)approved.push("approved replies should preserve the selected persona and natural cadence");
+ if(store.styles.has("More slang"))approved.push("natural slang");
+ if(store.styles.has("More direct"))approved.push("directness");
+ if(store.styles.has("More flirty"))approved.push("controlled flirtation");
+ if(store.styles.has("Add humor"))approved.push("observational humor");
+ if((ratings["Too polished"]||0)>0)rejected.push("overly polished or corporate wording");
+ if((ratings["Too thirsty"]||0)>0)rejected.push("thirstiness or overpursuit");
+ return{approved_traits:approved,rejected_traits:rejected}
+}
+function localFallback(text){
+ const tone=inferTone(text),alts={safe:craft("safe"),authentic:craft("authentic"),turned:craft("turned")};
+ return{
+  room_read:{their_energy:tone[0],what_it_may_mean:tone[1],best_move:tone[2],risk:"Local fallback cannot deeply infer context, so avoid treating its interpretation as fact."},
+  reply:alts.authentic,
+  alternates:{safe:alts.safe,authentic:alts.authentic,turned_up:alts.turned},
+  composure_check:{thirsty:false,too_professional:false,too_long:false,too_aggressive:false,notes:"Generated by the offline Sae engine."},
+  reasoning_summary:"The secure SHIN API was unavailable, so the app used its built-in local response engine.",
+  meta:{engine:"Local Sae fallback"}
+ }
+}
+function applyResult(data,text){
+ const alts={safe:data.alternates.safe,authentic:data.alternates.authentic,turned:data.alternates.turned_up};
+ const tone=[data.room_read.their_energy,data.room_read.what_it_may_mean,data.room_read.best_move];
+ store.last={reply:data.reply,alts,tone,persona:store.persona,goal:$("#goal").value,relationship:$("#relationship").value,source:text,date:new Date().toISOString(),engine:data.meta?.engine||"SHIN Intelligence",analysis:data};
+ store.generations++;store.usage[store.persona]=(store.usage[store.persona]||0)+1;
+ localStorage.sm_generations=store.generations;localStorage.sm_usage=JSON.stringify(store.usage);
+ $("#resultTitle").textContent=`${store.persona} response ready`;
+ $("#replyText").textContent=data.reply;
+ $("#roomRead").innerHTML=[
+  ["Their energy",data.room_read.their_energy],
+  ["What it may mean",data.room_read.what_it_may_mean],
+  ["Best move",data.room_read.best_move],
+  ["Risk to watch",data.room_read.risk],
+  ["Composure check",data.composure_check.notes],
+  ["SHIN summary",data.reasoning_summary]
+ ].map(x=>`<div class="readRow"><strong>${x[0]}</strong><span>${x[1]}</span></div>`).join("");
+ $("#alternateText").textContent=alts.safe;
+ $$(".altTabs button").forEach((x,i)=>x.classList.toggle("active",i===0));
+ show("results");renderStats();
+ toast(data.meta?.engine==="Local Sae fallback"?"Offline fallback used":"SHIN Intelligence complete");
+}
+async function analyze(){
+ const text=$("#message").value.trim();
+ if(!text){toast("Drop the message first");$("#message").focus();return}
+ const button=$("#analyzeBtn"),original=button.innerHTML;
+ button.disabled=true;button.innerHTML='SHIN is reading the room <span class="thinkingDots">•••</span>';
+ try{
+  const response=await fetch("/api/generate",{
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({
+    persona:store.persona,
+    relationship:$("#relationship").value,
+    goal:$("#goal").value,
+    intensity:+$("#intensity").value,
+    styles:[...store.styles],
+    conversation:text,
+    preference_profile:getPreferenceProfile()
+   })
+  });
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||"SHIN Intelligence is unavailable.");
+  applyResult(data,text);
+ }catch(error){
+  console.warn("SHIN API unavailable; using local fallback.",error);
+  applyResult(localFallback(text),text);
+  toast(error.message||"Local fallback used");
+ }finally{
+  button.disabled=false;button.innerHTML=original;
+ }
+}
+$("#analyzeBtn").onclick=analyze;$('#pasteBtn').onclick=async()=>{try{$('#message').value=await navigator.clipboard.readText();toast('Pasted')}catch{toast('Press and hold inside the box to paste')}};$('#copyReply').onclick=async()=>{await navigator.clipboard.writeText($('#replyText').textContent);toast('Reply copied')};$$('.altTabs button').forEach(b=>b.onclick=()=>{$$('.altTabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#alternateText').textContent=store.last.alts[b.dataset.alt]});$('#useAlternate').onclick=()=>{$('#replyText').textContent=$('#alternateText').textContent;store.last.reply=$('#replyText').textContent;toast('Version selected')};$$('[data-rate]').forEach(b=>b.onclick=()=>{store.ratings[b.dataset.rate]=(store.ratings[b.dataset.rate]||0)+1;localStorage.sm_ratings=JSON.stringify(store.ratings);toast(`${b.dataset.rate} saved`);renderStats()});$('#savePlaybook').onclick=()=>{if(!store.last)return;store.saved.unshift({...store.last,reply:$('#replyText').textContent});store.saved=store.saved.slice(0,60);localStorage.sm_saved=JSON.stringify(store.saved);renderSaved();renderStats();toast('Saved to Playbook')};
 function renderPrinciples(){$('#principles').innerHTML=PRINCIPLES.map(x=>`<div class="principle"><strong>${x[0]}</strong><p>${x[1]}</p></div>`).join('')}
 function renderSaved(){$('#savedReplies').innerHTML=store.saved.length?store.saved.map((x,i)=>`<div class="savedItem"><strong>${x.persona} · ${x.goal}</strong><p>${x.reply}</p><button class="text deleteSaved" data-i="${i}">Delete</button></div>`).join(''):`<div class="savedItem"><strong>No saved replies yet</strong><p>Approve a response and save it from the result screen.</p></div>`;$$('.deleteSaved').forEach(b=>b.onclick=()=>{store.saved.splice(+b.dataset.i,1);localStorage.sm_saved=JSON.stringify(store.saved);renderSaved();renderStats()})}
 $('#clearPlaybook').onclick=()=>{store.saved=[];localStorage.sm_saved='[]';renderSaved();renderStats();toast('Saved replies cleared')};
