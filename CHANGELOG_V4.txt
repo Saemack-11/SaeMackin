@@ -1,0 +1,34 @@
+SAEMACKIN101 V4 — UNIVERSAL + ZODIAC CHEAT CODE
+
+ADDED
+- Expanded Who is this? relationship universe.
+- New What happened? context layer.
+- Major expansion of What do you want? goals.
+- Energy naming: Soft / Calm Sae / Confident Sae / Bold / Unfiltered Sae.
+- Expandable + More styles drawer with advanced Sae/RNP controls.
+- Optional Zodiac Cheat Code: Scorpio baseline × all 12 target signs.
+- Zodiac Playbook quick-read cards.
+- Zodiac output card with useful lens + reality check.
+- Expanded Sae Filter response ratings.
+- Local Zodiac usage and preference memory.
+- "Same Brain. Different Room." principle across personal, family, business and formal communication.
+
+INTELLIGENCE
+- API now receives relationship + situation + goal + style stack + Zodiac settings + local feedback profile.
+- Zodiac is explicitly non-diagnostic and non-deterministic.
+- Conversation evidence, behavior and boundaries always outrank astrology.
+- Formal/legal/work/co-parenting contexts receive higher factual restraint.
+- Advanced style controls are interpreted semantically rather than copied literally.
+
+FIXED
+- Persona image asset wiring: every persona now has a stable slug matching its image file.
+- New V4 service-worker cache identity to reduce stale PWA assets after deployment.
+- AI/saved content is HTML-escaped before UI insertion where relevant.
+
+PRESERVED
+- 12 approved Sae personas.
+- Gold/black SHIN House of Zen visual identity.
+- Secure server-side OpenAI key handling.
+- Structured SHIN response format.
+- Offline local Sae fallback.
+- Playbook + Sae IQ local storage.

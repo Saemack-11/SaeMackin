@@ -1,11 +1,159 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#070503"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><title>SaeMackin101</title><link rel="manifest" href="/manifest.webmanifest?v=4"><link rel="icon" type="image/png" sizes="192x192" href="/assets/icon-192.png?v=4"><link rel="icon" type="image/png" sizes="512x512" href="/assets/icon-512.png?v=4"><link rel="apple-touch-icon" sizes="180x180" href="/assets/icon-180.png?v=4"><link rel="apple-touch-icon-precomposed" sizes="180x180" href="/assets/icon-180.png?v=4"><link rel="stylesheet" href="styles.css"></head><body><div class="ambient"></div><div class="app">
-<header class="topbar"><div class="mark"><span></span><div><small>SHIN HOUSE OF ZEN</small><strong>SaeMackin<em>101</em></strong></div></div><button id="installBtn" class="round hidden">⇩</button></header>
-<main>
-<section class="view active hero" data-view="home"><img src="assets/saemackin-gold-hero.png" alt="Metallic gold SaeMackin visual"><div class="shade"></div><div class="heroCopy"><p class="kicker">PERSONAL COMMUNICATION INTELLIGENCE</p><h1>Read the room.<br><b>Stay Sae.</b></h1><p>Confidence by observation. Controlled heat. Comedian’s composure. Grounded intention.</p><button class="gold" data-go="studio">Enter the Studio <span>→</span></button></div><div class="status"><span><i></i> Engine ready</span><span>12 personas</span></div></section>
-<section class="view" data-view="studio"><div class="title"><div><p class="kicker">STEP 1</p><h2>Who’s stepping forward?</h2></div><button id="randomPersona" class="mini">Surprise me</button></div><div id="personas" class="personas"></div><div id="mode" class="mode"><div id="modeIcon" class="modeIcon">🧘🏾</div><div><small>ACTIVE VERSION</small><h3 id="modeName">Grounded Sae</h3><p id="modeDesc"></p></div><div class="meter"><span id="meter"></span></div></div>
-<div class="card"><div class="cardHead"><div><p class="kicker">STEP 2</p><h3>Set the circumstance</h3></div><button id="resetBtn" class="text">Reset</button></div><div class="fields"><label>Who is this?<select id="relationship"></select></label><label>What do you want?<select id="goal"></select></label></div><div class="range"><div><label>Energy level</label><strong id="intensityText">Balanced</strong></div><input id="intensity" type="range" min="1" max="5" value="3"><div class="rangeLabels"><span>Soft</span><span>Unfiltered Sae</span></div></div><div id="chips" class="chips"></div></div>
-<div class="card"><div class="cardHead"><div><p class="kicker">STEP 3</p><h3>Drop the conversation</h3></div><button id="pasteBtn" class="text">Paste</button></div><textarea id="message" placeholder="Paste their message, the whole conversation, your draft, or explain what happened..."></textarea><button id="analyzeBtn" class="gold full">Read the room & craft reply <span>✦</span></button><p class="privacy">Private by default. Your Playbook stays on this device.</p></div></section>
-<section class="view" data-view="results"><div class="title"><div><p class="kicker">SAEMACKIN READ</p><h2 id="resultTitle">Response ready</h2></div><button id="backToStudio" class="round">←</button></div><article class="response"><div class="responseHead"><i></i><strong>READY TO SEND</strong><button id="copyReply" class="mini">Copy</button></div><p id="replyText"></p><div class="ratings"><button data-rate="Nailed it">🔥 Nailed it</button><button data-rate="Almost">Almost</button><button data-rate="Too polished">Too polished</button><button data-rate="Too thirsty">Too thirsty</button></div></article><article class="card"><p class="kicker">ROOM READ</p><h3>What’s happening underneath</h3><div id="roomRead" class="roomRead"></div></article><article class="card"><p class="kicker">ALTERNATE TAKES</p><h3>Same Sae, different temperature</h3><div class="altTabs"><button class="active" data-alt="safe">Safe</button><button data-alt="authentic">Authentic</button><button data-alt="turned">Turned up</button></div><p id="alternateText" class="alternate"></p><button id="useAlternate" class="mini">Use this version</button></article><button id="savePlaybook" class="gold full">Save this lesson to the Playbook</button></section>
-<section class="view" data-view="playbook"><div class="title"><div><p class="kicker">SAE PLAYBOOK</p><h2>What lands stays.</h2></div><button id="clearPlaybook" class="text">Clear saved</button></div><div id="principles" class="principles"></div><h3>Saved replies</h3><div id="savedReplies" class="saved"></div></section>
-<section class="view" data-view="iq"><div class="title"><div><p class="kicker">SAE IQ</p><h2>Your communication fingerprint</h2></div></div><div id="stats" class="stats"></div><div class="card"><p class="kicker">LOCAL LEARNING</p><h3>What this build remembers</h3><p class="muted">Persona usage, approved replies, ratings and preferred energy settings. No fake performance statistics.</p></div></section>
-</main><nav class="nav"><button class="active" data-nav="home"><span>⌂</span><small>Home</small></button><button data-nav="studio"><span>✦</span><small>Studio</small></button><button data-nav="playbook"><span>▤</span><small>Playbook</small></button><button data-nav="iq"><span>◉</span><small>Sae IQ</small></button></nav><div id="toast" class="toast"></div></div><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#070503">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>SaeMackin101</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/icon-180.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="ambient"></div>
+<div class="app">
+  <header class="topbar">
+    <div class="mark"><span></span><div><small>SHIN HOUSE OF ZEN</small><strong>SaeMackin<em>101</em></strong></div></div>
+    <button id="installBtn" class="round hidden" aria-label="Install app">⇩</button>
+  </header>
+
+  <main>
+    <section class="view active hero" data-view="home">
+      <img src="assets/saemackin-gold-hero.png" alt="Metallic gold SaeMackin visual">
+      <div class="shade"></div>
+      <div class="heroCopy">
+        <p class="kicker">PERSONAL COMMUNICATION INTELLIGENCE</p>
+        <h1>Read the room.<br><b>Stay Sae.</b></h1>
+        <p>Confidence by observation. Controlled heat. Comedian’s composure. Grounded intention.</p>
+        <button class="gold" data-go="studio">Enter the Studio <span>→</span></button>
+      </div>
+      <div class="status"><span><i></i> Engine ready</span><span>12 Sae modes · universal contexts</span></div>
+    </section>
+
+    <section class="view" data-view="studio">
+      <div class="title"><div><p class="kicker">STEP 1</p><h2>Who’s stepping forward?</h2></div><button id="randomPersona" class="mini">Surprise me</button></div>
+      <div id="personas" class="personas"></div>
+      <div id="mode" class="mode">
+        <div id="modeIcon" class="modeIcon">🧘🏾</div>
+        <div><small>ACTIVE VERSION</small><h3 id="modeName">Grounded Sae</h3><p id="modeDesc"></p></div>
+        <div class="meter"><span id="meter"></span></div>
+      </div>
+
+      <div class="card circumstanceCard">
+        <div class="cardHead"><div><p class="kicker">STEP 2</p><h3>Set the circumstance</h3></div><button id="resetBtn" class="text">Reset</button></div>
+        <div class="fields fieldsThree">
+          <label>Who is this?<select id="relationship"></select></label>
+          <label>What happened?<select id="situation"></select></label>
+          <label>What do you want?<select id="goal"></select></label>
+        </div>
+
+        <div class="zodiacPanel" id="zodiacPanel">
+          <div class="zodiacTop">
+            <div class="zodiacIcon">♏</div>
+            <div class="zodiacCopy">
+              <small>ZODIAC CHEAT CODE</small>
+              <strong>Scorpio lens × their sign</strong>
+              <span>Use astrology as an archetype lens, never as proof of who somebody is.</span>
+            </div>
+            <button id="zodiacToggle" class="switch" type="button" role="switch" aria-checked="false"><span></span></button>
+          </div>
+          <div id="zodiacControls" class="zodiacControls hidden">
+            <label>Their sign<select id="targetSign"></select></label>
+            <div class="zodiacHint"><b id="zodiacHeadline">Choose a sign</b><span id="zodiacHintText">SHIN will layer a light communication archetype over the actual conversation. Their real words always outrank the sign.</span></div>
+          </div>
+        </div>
+
+        <div class="range">
+          <div><label>Energy level</label><strong id="intensityText">Balanced</strong></div>
+          <input id="intensity" type="range" min="1" max="5" value="3">
+          <div class="rangeLabels"><span>Soft</span><span>Unfiltered Sae</span></div>
+        </div>
+
+        <div class="styleLabel"><span>Quick style controls</span><small>Stack what you need</small></div>
+        <div id="chips" class="chips"></div>
+        <details class="moreStyles" id="moreStyles">
+          <summary>+ More styles</summary>
+          <div id="moreChips" class="chips secondaryChips"></div>
+        </details>
+      </div>
+
+      <div class="card">
+        <div class="cardHead"><div><p class="kicker">STEP 3</p><h3>Drop the conversation</h3></div><button id="pasteBtn" class="text">Paste</button></div>
+        <textarea id="message" placeholder="Paste their message, the whole conversation, your draft, or explain what happened..."></textarea>
+        <button id="analyzeBtn" class="gold full">Read the room & craft reply <span>✦</span></button>
+        <p class="privacy">Private by default. Saved Playbook data stays on this device. Zodiac is treated as a vibe lens, not a factual personality diagnosis.</p>
+      </div>
+    </section>
+
+    <section class="view" data-view="results">
+      <div class="title"><div><p class="kicker">SAEMACKIN READ</p><h2 id="resultTitle">Response ready</h2></div><button id="backToStudio" class="round">←</button></div>
+      <article class="response">
+        <div class="responseHead"><i></i><strong>READY TO SEND</strong><button id="copyReply" class="mini">Copy</button></div>
+        <p id="replyText"></p>
+        <div class="ratings" id="ratings">
+          <button data-rate="Nailed it">🔥 Nailed it</button>
+          <button data-rate="That ain't me">That ain’t me 😂</button>
+          <button data-rate="Too thirsty">Too thirsty</button>
+          <button data-rate="Too soft">Too soft</button>
+          <button data-rate="Too aggressive">Too aggressive</button>
+          <button data-rate="Too long">Too long</button>
+          <button data-rate="Too professional">Too professional</button>
+          <button data-rate="Too robotic">Too robotic</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <p class="kicker">ROOM READ</p><h3>What’s happening underneath</h3>
+        <div id="roomRead" class="roomRead"></div>
+      </article>
+
+      <article id="zodiacResultCard" class="card hidden">
+        <p class="kicker">ZODIAC CHEAT CODE</p><h3 id="zodiacResultTitle">Scorpio × their sign</h3>
+        <div id="zodiacResult" class="roomRead"></div>
+      </article>
+
+      <article class="card">
+        <p class="kicker">ALTERNATE TAKES</p><h3>Same Sae, different temperature</h3>
+        <div class="altTabs"><button class="active" data-alt="safe">Safe</button><button data-alt="authentic">Authentic</button><button data-alt="turned">Turned up</button></div>
+        <p id="alternateText" class="alternate"></p>
+        <button id="useAlternate" class="mini">Use this version</button>
+      </article>
+      <button id="savePlaybook" class="gold full">Save this lesson to the Playbook</button>
+    </section>
+
+    <section class="view" data-view="playbook">
+      <div class="title"><div><p class="kicker">SAE PLAYBOOK</p><h2>What lands stays.</h2></div><button id="clearPlaybook" class="text">Clear saved</button></div>
+      <div id="principles" class="principles"></div>
+
+      <div class="card zodiacPlaybook">
+        <p class="kicker">ZODIAC CHEAT CODE</p><h3>Archetype quick read</h3>
+        <p class="muted">Use these as conversation prompts, not hard truths. Actual behavior, boundaries and communication always override a sun sign.</p>
+        <div id="zodiacGrid" class="zodiacGrid"></div>
+        <div id="zodiacPlaybookRead" class="zodiacPlaybookRead"><strong>♏ Scorpio baseline</strong><p>Observe first, move with intention, protect privacy, be loyal without becoming controlling, and say the real thing without making every moment a test.</p></div>
+      </div>
+
+      <h3>Saved replies</h3>
+      <div id="savedReplies" class="saved"></div>
+    </section>
+
+    <section class="view" data-view="iq">
+      <div class="title"><div><p class="kicker">SAE IQ</p><h2>Your communication fingerprint</h2></div></div>
+      <div id="stats" class="stats"></div>
+      <div class="card"><p class="kicker">LOCAL LEARNING</p><h3>What this build remembers</h3><p class="muted">Persona usage, approved replies, ratings, preferred energy settings, style choices and Zodiac Cheat Code usage. No fake performance statistics and no claim that a sign defines a person.</p></div>
+      <div class="card"><p class="kicker">SAE DNA</p><h3>Same brain. Different room.</h3><p class="muted">SaeMackin101 keeps the voice consistent while changing delivery for dating, family, co-parenting, legal, work, business, friends and everything between.</p></div>
+    </section>
+  </main>
+
+  <nav class="nav">
+    <button class="active" data-nav="home"><span>⌂</span><small>Home</small></button>
+    <button data-nav="studio"><span>✦</span><small>Studio</small></button>
+    <button data-nav="playbook"><span>▤</span><small>Playbook</small></button>
+    <button data-nav="iq"><span>◉</span><small>Sae IQ</small></button>
+  </nav>
+  <div id="toast" class="toast"></div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
