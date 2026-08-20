@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070503">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>RNP · Real Ninja Poetics</title>
+<style>
+:root{--bg:#070503;--panel:#100c08;--gold:#d9aa45;--gold2:#f0cf7c;--txt:#f4efe7;--muted:#a89e91;--line:rgba(217,170,69,.24);--green:#43e38b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -10%,#21160b 0,#070503 42%,#030201 100%);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Segoe UI,sans-serif;min-height:100vh}
+.wrap{max-width:680px;margin:auto;padding:calc(env(safe-area-inset-top) + 18px) 16px calc(env(safe-area-inset-bottom) + 32px)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.brand small,.k{display:block;color:var(--gold);font-size:10px;letter-spacing:.18em;font-weight:800}.brand h1{font-size:25px;margin:2px 0 0;letter-spacing:.04em}.back{color:var(--gold2);text-decoration:none;border:1px solid var(--line);padding:9px 12px;border-radius:999px;font-size:12px}
+.hero,.card{border:1px solid var(--line);background:linear-gradient(145deg,rgba(26,18,10,.94),rgba(8,6,4,.94));border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 16px 40px rgba(0,0,0,.28)}
+.hero h2{font-size:28px;line-height:1.05;margin:8px 0}.hero p,.muted{color:var(--muted);font-size:13px;line-height:1.5}
+label{display:block;color:var(--gold2);font-size:11px;font-weight:800;letter-spacing:.05em;margin:12px 0 6px}textarea,select{width:100%;border:1px solid var(--line);border-radius:14px;background:#090705;color:var(--txt);padding:13px;font:inherit;outline:none}textarea{min-height:190px;resize:vertical;line-height:1.45}select{appearance:none}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{width:100%;margin-top:14px;border:0;border-radius:14px;padding:15px 16px;font-weight:900;font-size:15px;background:linear-gradient(180deg,var(--gold2),var(--gold));color:#181006;box-shadow:0 12px 28px rgba(217,170,69,.18)}.btn:disabled{opacity:.5}.status{font-size:12px;margin-top:9px;color:var(--muted)}
+.output{display:none}.output.show{display:block}.block{padding:12px 0;border-top:1px solid rgba(217,170,69,.14)}.block:first-child{border-top:0}.block h3{font-size:12px;color:var(--gold2);letter-spacing:.1em;text-transform:uppercase;margin:0 0 7px}.block p{margin:0;white-space:pre-wrap;line-height:1.5}.bars{display:grid;gap:8px}.bar{background:#090705;border:1px solid rgba(217,170,69,.14);border-radius:12px;padding:11px;line-height:1.45}.copy{border:1px solid var(--line);background:transparent;color:var(--gold2);padding:8px 10px;border-radius:10px;font-weight:800;font-size:11px}.row{display:flex;justify-content:space-between;gap:10px;align-items:center}.avoid{margin:0;padding-left:18px;color:var(--muted);line-height:1.45}
+@media(max-width:520px){.grid{grid-template-columns:1fr}.hero h2{font-size:25px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><small>SHIN CREATIVE ROOM</small><h1>REAL NINJA POETICS</h1></div>
+    <a class="back" href="index.html">← SaeMackin</a>
+  </div>
+
+  <section class="hero">
+    <span class="k">PRESSURE → POETRY</span>
+    <h2>Use the life. Don’t fake the life.</h2>
+    <p>Drop what is actually on your mind. RNP turns it into a freestyle angle, hook seed, four bar seeds, a caption and one recording focus without sanding your story down into generic rapper talk.</p>
+  </section>
+
+  <section class="card">
+    <label for="raw">What’s real right now?</label>
+    <textarea id="raw" placeholder="Talk how you really talk. Pressure, family, money, purpose, relationships, wins, anger, doubt, faith, whatever is actually there..."></textarea>
+    <div class="grid">
+      <div><label for="mood">Mood</label><select id="mood"><option>grounded pressure</option><option>hungry</option><option>reflective</option><option>cold focus</option><option>spiritual</option><option>hurt but composed</option><option>victory lap</option></select></div>
+      <div><label for="energy">Delivery</label><select id="energy"><option>grown and rugged</option><option>conversational</option><option>melodic space</option><option>punchline-heavy</option><option>low-key menace</option><option>fatherhood / legacy</option></select></div>
+    </div>
+    <button id="go" class="btn">Build RNP packet ✦</button>
+    <div id="status" class="status">Original seeds only · no artist imitation · no fake flexing.</div>
+  </section>
+
+  <section id="output" class="card output">
+    <div class="row"><div><span class="k">RNP PACKET</span><h2 id="title" style="margin:3px 0 0"></h2></div><button id="copyAll" class="copy">Copy all</button></div>
+    <div class="block"><h3>30–60 sec freestyle angle</h3><p id="angle"></p></div>
+    <div class="block"><h3>Hook seed</h3><p id="hook"></p></div>
+    <div class="block"><h3>Bar seeds</h3><div id="bars" class="bars"></div></div>
+    <div class="block"><h3>Caption</h3><p id="caption"></p></div>
+    <div class="block"><h3>BandLab focus</h3><p id="recording"></p></div>
+    <div class="block"><h3>Truth check</h3><p id="truth"></p></div>
+    <div class="block"><h3>Don’t let this turn generic</h3><ul id="avoid" class="avoid"></ul></div>
+  </section>
+</div>
+<script>
+const $=s=>document.querySelector(s);let last=null;
+$('#go').onclick=async()=>{
+  const raw=$('#raw').value.trim();if(!raw){$('#status').textContent='Give RNP something real first.';return;}
+  $('#go').disabled=true;$('#status').textContent='SHIN is shaping the pressure without replacing your voice…';
+  try{
+    const r=await fetch('/api/rnp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({raw,mood:$('#mood').value,energy:$('#energy').value})});
+    const j=await r.json();if(!r.ok)throw new Error(j.error||'RNP failed');last=j;
+    $('#title').textContent=j.title;$('#angle').textContent=j.freestyle_angle;$('#hook').textContent=j.hook_seed;$('#caption').textContent=j.caption;$('#recording').textContent=j.recording_focus;$('#truth').textContent=j.truth_check;
+    $('#bars').innerHTML=(j.bar_seeds||[]).map(x=>`<div class="bar">${String(x).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))}</div>`).join('');
+    $('#avoid').innerHTML=(j.avoid||[]).map(x=>`<li>${String(x).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))}</li>`).join('');
+    $('#output').classList.add('show');$('#status').textContent='Packet ready. Keep what feels like you; throw away what doesn’t.';$('#output').scrollIntoView({behavior:'smooth'});
+  }catch(e){$('#status').textContent=e.message||'RNP could not finish.';}finally{$('#go').disabled=false;}
+};
+$('#copyAll').onclick=async()=>{if(!last)return;const t=[last.title,'Freestyle: '+last.freestyle_angle,'Hook: '+last.hook_seed,'Bars:',...(last.bar_seeds||[]),'Caption: '+last.caption,'BandLab: '+last.recording_focus,'Truth check: '+last.truth_check].join('\n');await navigator.clipboard.writeText(t);$('#status').textContent='RNP packet copied.';};
+</script>
+</body>
+</html>
