@@ -2,6 +2,19 @@
 
 Mobile-first communication PWA built around one rule: **same Sae brain, different room**. V4 broadens Studio from a mostly dating-oriented responder into a universal communication system while preserving the Sae/RNP voice.
 
+## RNP — Real Ninja Poetics
+
+The repository now includes a dedicated mobile creative room at **`/rnp.html`** backed by **`/api/rnp`**.
+
+RNP is built around **pressure → poetry** rather than generic rapper templates:
+- Start from a real event, emotion, scene, pressure point, responsibility, win, loss, conflict, ambition, or reflection.
+- Generate one 30–60 second freestyle angle, one hook seed, four bar seeds, a social caption, and one BandLab recording focus.
+- Keep the output as creative seeds so the artist still owns the actual performance and final writing.
+- Favor concrete details and contradictions over motivational clichés and fake flexing.
+- Never invent street history, money, violence, criminal activity, trauma, or accomplishments.
+- Never imitate a named rapper or public figure. High-level musical qualities can influence pacing, density, restraint, melody space, or emotional directness without copying an artist's style.
+- Use **“ninja”** instead of racial slurs.
+
 ## V4 — Universal Context + Zodiac Cheat Code
 
 ### Studio intelligence flow
@@ -64,7 +77,7 @@ Those signals stay in browser local storage and are converted into preference hi
 
 Upload the **contents of this folder** to the repository root and keep the folder structure intact.
 
-Never upload a real `.env` file or paste an API key into `app.js`, `index.html`, or `api/generate.js`.
+Never upload a real `.env` file or paste an API key into `app.js`, `index.html`, `api/generate.js`, or `api/rnp.js`.
 
 ## Vercel deployment
 
@@ -87,6 +100,6 @@ Copy `.env.example` to `.env.local` for local development and place the private 
 
 ## Privacy + truth boundary
 
-The server sends the submitted conversation and selected controls to the OpenAI API for generation. Saved replies, ratings, persona usage, style settings and Zodiac usage remain in browser local storage.
+The server sends the submitted conversation or RNP prompt and selected controls to the OpenAI API for generation. Saved replies, ratings, persona usage, style settings and Zodiac usage remain in browser local storage.
 
-Room Read and Zodiac output are explicitly written as interpretations or possibilities rather than facts. SaeMackin101 should never fabricate another person's motives or claim astrology can diagnose them.
+Room Read and Zodiac output are explicitly written as interpretations or possibilities rather than facts. SaeMackin101 should never fabricate another person's motives or claim astrology can diagnose them. RNP likewise must not fabricate the user's biography in order to make a bar sound tougher.
