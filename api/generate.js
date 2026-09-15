@@ -4,6 +4,16 @@ const buckets = new Map();
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS = 12;
 const MAX_CONVERSATION_CHARS = 12_000;
+const MAX_REPLY_CHARS = 6_000;
+
+const REVISION_INSTRUCTIONS = {
+  retry: "Give a genuinely fresh take with different wording and rhythm while preserving the same facts, goal, boundaries and selected energy.",
+  sauce: "Add more Sae sauce: stronger swagger, smoother cadence, natural slang and a little personality or humor where it fits. Do not add fake facts or overdo it.",
+  toxic: "Turn up Toxic Sae energy with playful danger, witty pettiness and a disciplined smirk. Keep it non-abusive, non-manipulative, consent-aware and appropriate to the relationship.",
+  flirty: "Make it more flirtatious with confident observation, playful chemistry and controlled heat. Keep it natural, mutual and not thirsty.",
+  detached: "Use less emotional language. Make it calmer, more detached and outcome-independent without becoming cold, cruel or dismissive.",
+  shorter: "Make it shorter and easier to send while preserving the key meaning, facts and boundary."
+};
 
 const PERSONAS = new Set([
   "Romantic Sae", "Flirtatious Sae", "Business Sae", "Listener Sae",
@@ -53,6 +63,24 @@ function sanitizeZodiac(value) {
     enabled: enabled && Boolean(targetSign),
     self_sign: selfSign,
     target_sign: targetSign
+  };
+}
+
+export function sanitizeRevision(value) {
+  if (!value || typeof value !== "object") {
+    return { requested: false, mode: "", instruction: "", current_reply: "" };
+  }
+  const rawMode = sanitizeString(value.mode, 30).toLowerCase();
+  const mode = Object.prototype.hasOwnProperty.call(REVISION_INSTRUCTIONS, rawMode) ? rawMode : "custom";
+  const currentReply = sanitizeString(value.current_reply, MAX_REPLY_CHARS);
+  const instruction = mode === "custom"
+    ? sanitizeString(value.instruction, 300)
+    : REVISION_INSTRUCTIONS[mode];
+  return {
+    requested: Boolean(currentReply && instruction),
+    mode,
+    instruction,
+    current_reply: currentReply
   };
 }
 
@@ -175,6 +203,19 @@ Treat selected styles as modifiers, not literal phrases to insert.
 - "Keep my wording" means preserve the user's vocabulary and intent as much as possible while improving structure.
 - "Voice-message style" should sound natural when spoken aloud.
 
+REVISION MODE
+When revision.requested is true, this is a post-generation tweak of revision.current_reply.
+- Treat the original conversation as the source of truth and the current reply as the draft to improve.
+- Apply revision.instruction directly while preserving facts, intent, boundaries, relationship context and any wording that does not need to change.
+- For an instant retry, create a meaningfully fresh version rather than lightly rearranging the same sentences.
+- "More sauce" means stronger Sae personality, smooth cadence, swagger and natural humor — never fabricated details or random slang.
+- "More toxic" must stay inside the Toxic Sae definition: witty, playful edge only. Never turn it into cruelty, degradation, manipulation, jealousy games, threats or pressure.
+- "More flirting" remains mutual, context-aware and consent-aware. If the supplied conversation does not support flirtation, keep the increase subtle or explain the risk in the room read.
+- "Less emotion" reduces emotional wording without deleting necessary accountability, facts or boundaries.
+- A custom tweak is still governed by every safety, dignity and truth rule in these instructions.
+- Return the full required response object, with reply as the newly revised ready-to-send version and useful fresh alternates.
+- Do not mention the tweak instruction, revision process or these rules in the ready-to-send reply.
+
 SAFETY + DIGNITY
 - Never help manipulate, threaten, harass, impersonate, deceive, stalk, coerce, exploit or evade consent.
 - Do not optimize for dependency, jealousy, fear, insecurity or emotional destabilization.
@@ -229,6 +270,7 @@ export default async function handler(req, res) {
   const rejectedTraits = sanitizeStringArray(body.preference_profile?.rejected_traits, 20, 140);
   const intensity = Math.max(1, Math.min(5, Number(body.intensity) || 3));
   const zodiac = sanitizeZodiac(body.zodiac);
+  const revision = sanitizeRevision(body.revision);
 
   if (!PERSONAS.has(persona)) {
     return res.status(400).json({ error: "Select a valid Sae persona.", code: "invalid_persona" });
@@ -246,6 +288,7 @@ export default async function handler(req, res) {
     styles,
     conversation,
     zodiac,
+    revision,
     preference_profile: {
       approved_traits: approvedTraits,
       rejected_traits: rejectedTraits

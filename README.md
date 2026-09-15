@@ -1,6 +1,17 @@
-# SaeMackin101 — SHIN Intelligence V4
+# SaeMackin101 — SHIN Intelligence V4.2
 
 Mobile-first communication PWA built around one rule: **same Sae brain, different room**. V4 broadens Studio from a mostly dating-oriented responder into a universal communication system while preserving the Sae/RNP voice.
+
+## V4.2 — Read Aloud + Instant Tweak
+
+Every generated ready-to-send response now includes:
+- **Read aloud / Stop** using the device's built-in speech voice.
+- **Instant retry** for a genuinely fresh take without rebuilding the setup.
+- One-tap tone refinements for **More sauce**, **More toxic**, **More flirting**, **Less emotion**, and **Shorter**.
+- A custom tweak field for directions such as “keep my wording but make it smoother.”
+- Revision-aware generation that uses the original conversation as the source of truth and the current response as the draft being improved.
+
+“More toxic” remains inside the app's established Toxic Sae boundary: playful edge and witty pettiness, never abuse, manipulation, coercion or degradation.
 
 ## RNP — Real Ninja Poetics
 

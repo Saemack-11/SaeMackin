@@ -39,6 +39,14 @@ const MORE_STYLES=['More confident','More assertive','More respectful','More vul
 const ALL_STYLES=[...QUICK_STYLES,...MORE_STYLES];
 const LEVELS=['Soft','Calm Sae','Confident Sae','Bold','Unfiltered Sae'];
 const SIGNS=['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+const TWEAK_PRESETS={
+  retry:{label:'Instant retry',instruction:'Give me a genuinely fresh take with different wording and rhythm. Keep the same facts, goal, boundaries and overall selected energy.'},
+  sauce:{label:'More sauce',instruction:'Add more Sae sauce: stronger swagger, smoother cadence, natural slang and a little personality or humor where it fits. Do not add fake facts or overdo it.'},
+  toxic:{label:'More toxic',instruction:'Turn up Toxic Sae energy with playful danger, witty pettiness and a disciplined smirk. Keep it non-abusive, non-manipulative, consent-aware and appropriate to the relationship.'},
+  flirty:{label:'More flirting',instruction:'Make it more flirtatious with confident observation, playful chemistry and controlled heat. Keep it natural, mutual and not thirsty.'},
+  detached:{label:'Less emotion',instruction:'Use less emotional language. Make it calmer, more detached and outcome-independent without becoming cold, cruel or dismissive.'},
+  shorter:{label:'Shorter',instruction:'Make it shorter and easier to send while preserving the key meaning, facts and boundary.'}
+};
 
 const ZODIAC={
   Aries:{symbol:'♈',headline:'Keep it direct and alive',cue:'Aries archetypes often appreciate clear energy, movement and a response that does not circle the point.',watch:'Do not confuse directness with permission to rush them.'},
@@ -82,7 +90,7 @@ const store={
 };
 
 function escapeHTML(value=''){return String(value).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
-function show(v){$$('.view').forEach(x=>x.classList.toggle('active',x.dataset.view===v));$$('[data-nav]').forEach(x=>x.classList.toggle('active',x.dataset.nav===v));scrollTo({top:0,behavior:'smooth'});}
+function show(v){stopSpeech();$$('.view').forEach(x=>x.classList.toggle('active',x.dataset.view===v));$$('[data-nav]').forEach(x=>x.classList.toggle('active',x.dataset.nav===v));scrollTo({top:0,behavior:'smooth'});}
 $$('[data-nav]').forEach(b=>b.onclick=()=>show(b.dataset.nav));
 $$('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
 $('#backToStudio').onclick=()=>show('studio');
@@ -245,8 +253,8 @@ function close(r){return {
   'Stranger':'No pressure either way. I’m just matching the energy respectfully.'
 }[r]||'I’m keeping it clear and respectful.';}
 
-function craft(temp='authentic'){
-  let p=store.persona,r=$('#relationship').value,g=$('#goal').value,l=+$('#intensity').value,s=[...store.styles];
+function craft(temp='authentic',overrides={}){
+  let p=overrides.persona||store.persona,r=$('#relationship').value,g=$('#goal').value,l=overrides.intensity??+$('#intensity').value,s=overrides.styles?[...overrides.styles]:[...store.styles];
   if(temp==='safe'){p='Grounded Sae';l=2;s=[...new Set([...s,'Shorter','More respectful'])];}
   if(temp==='turned'){l=5;s=[...new Set([...s,'More direct','More confident'])];}
   let a=opener(p),b=core(g),c=close(r),x=[];
@@ -302,7 +310,41 @@ function localFallback(text){
   };
 }
 
-function applyResult(data,text){
+function localRefinementFallback(text,revision){
+  const base=localFallback(text),current=String(revision.current_reply||'').trim();
+  let persona=store.persona,intensity=+$('#intensity').value,styles=[...store.styles];
+  if(revision.mode==='sauce')styles.push('More slang','Add humor','More playful');
+  if(revision.mode==='toxic'){persona='Toxic Sae';intensity=Math.max(4,intensity);styles.push('Add humor','More direct');}
+  if(revision.mode==='flirty')styles.push('More flirty','More smooth','More playful');
+  if(revision.mode==='detached')styles.push('More detached','More emotionally controlled','Shorter');
+  if(revision.mode==='shorter')styles.push('Shorter');
+  if(revision.mode==='custom'){
+    const request=revision.instruction.toLowerCase();
+    if(/flirt/.test(request))styles.push('More flirty','More smooth');
+    if(/toxic|petty/.test(request)){persona='Toxic Sae';styles.push('Add humor','More direct');}
+    if(/sauce|swagger|slang/.test(request))styles.push('More slang','Add humor');
+    if(/less emotion|detached|colder/.test(request))styles.push('More detached','Shorter');
+    if(/short/.test(request))styles.push('Shorter');
+  }
+  const uniqueStyles=[...new Set(styles)];
+  const refined={
+    safe:craft('safe',{persona,intensity,styles:uniqueStyles}),
+    authentic:craft('authentic',{persona,intensity,styles:uniqueStyles}),
+    turned_up:craft('turned',{persona,intensity,styles:uniqueStyles})
+  };
+  if(revision.mode==='retry'){
+    refined.authentic=[base.alternates.turned_up,base.alternates.safe,base.alternates.authentic].find(x=>x!==current)||base.reply;
+  }
+  return{
+    ...base,
+    reply:refined.authentic,
+    alternates:refined,
+    reasoning_summary:'The secure SHIN API was unavailable, so the built-in Sae engine applied the closest available version of this tweak.',
+    meta:{engine:'Local Sae fallback'}
+  };
+}
+
+function applyResult(data,text,{kind='generation',tweakLabel=''}={}){
   const alts={safe:data.alternates.safe,authentic:data.alternates.authentic,turned:data.alternates.turned_up};
   const tone=[data.room_read.their_energy,data.room_read.what_it_may_mean,data.room_read.best_move];
   store.last={
@@ -313,7 +355,7 @@ function applyResult(data,text){
   store.generations++;store.usage[store.persona]=(store.usage[store.persona]||0)+1;
   if(store.zodiacEnabled)store.signUsage[store.targetSign]=(store.signUsage[store.targetSign]||0)+1;
   localStorage.sm_generations=store.generations;localStorage.sm_usage=JSON.stringify(store.usage);localStorage.sm_sign_usage=JSON.stringify(store.signUsage);
-  $('#resultTitle').textContent=`${store.persona} response ready`;
+  $('#resultTitle').textContent=`${store.persona} ${kind==='tweak'?'tweak':'response'} ready`;
   $('#replyText').textContent=data.reply;
   $('#roomRead').innerHTML=[
     ['Their energy',data.room_read.their_energy],
@@ -332,8 +374,34 @@ function applyResult(data,text){
   }
   $('#alternateText').textContent=alts.safe;
   $$('.altTabs button').forEach((x,i)=>x.classList.toggle('active',i===0));
+  $('#tweakStatus').textContent=tweakLabel?`${tweakLabel} applied. Keep tweaking or send it.`:'';
   show('results');renderStats();
-  toast(data.meta?.engine==='Local Sae fallback'?'Offline fallback used':'SHIN Intelligence complete');
+  toast(data.meta?.engine==='Local Sae fallback'?'Offline fallback used':kind==='tweak'?`${tweakLabel} applied`:'SHIN Intelligence complete');
+}
+
+function generationPayload(text,revision){
+  return{
+    persona:store.persona,
+    relationship:$('#relationship').value,
+    situation:$('#situation').value,
+    goal:$('#goal').value,
+    intensity:+$('#intensity').value,
+    styles:[...store.styles],
+    conversation:text,
+    zodiac:{enabled:store.zodiacEnabled,self_sign:'Scorpio',target_sign:store.zodiacEnabled?store.targetSign:''},
+    preference_profile:getPreferenceProfile(),
+    ...(revision?{revision}: {})
+  };
+}
+
+async function requestGeneration(text,revision){
+  const response=await fetch('/api/generate',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(generationPayload(text,revision))
+  });
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||'SHIN Intelligence is unavailable.');
+  return data;
 }
 
 async function analyze(){
@@ -342,22 +410,7 @@ async function analyze(){
   const button=$('#analyzeBtn'),original=button.innerHTML;
   button.disabled=true;button.innerHTML='SHIN is reading the room <span class="thinkingDots">•••</span>';
   try{
-    const response=await fetch('/api/generate',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        persona:store.persona,
-        relationship:$('#relationship').value,
-        situation:$('#situation').value,
-        goal:$('#goal').value,
-        intensity:+$('#intensity').value,
-        styles:[...store.styles],
-        conversation:text,
-        zodiac:{enabled:store.zodiacEnabled,self_sign:'Scorpio',target_sign:store.zodiacEnabled?store.targetSign:''},
-        preference_profile:getPreferenceProfile()
-      })
-    });
-    const data=await response.json().catch(()=>({}));
-    if(!response.ok)throw new Error(data.error||'SHIN Intelligence is unavailable.');
+    const data=await requestGeneration(text);
     applyResult(data,text);
   }catch(error){
     console.warn('SHIN API unavailable; using local fallback.',error);
@@ -365,11 +418,62 @@ async function analyze(){
   }finally{button.disabled=false;button.innerHTML=original;}
 }
 
+let activeUtterance=null;
+function setSpeechButton(speaking=false){
+  const button=$('#speakReply');
+  if(!button)return;
+  button.setAttribute('aria-pressed',String(speaking));
+  button.innerHTML=speaking?'■ Stop':'<span aria-hidden="true">🔊</span> Read aloud';
+}
+function stopSpeech(){
+  if('speechSynthesis'in window)window.speechSynthesis.cancel();
+  activeUtterance=null;setSpeechButton(false);
+}
+function readReplyAloud(){
+  if(!('speechSynthesis'in window)||!('SpeechSynthesisUtterance'in window)){toast('Read aloud is not supported on this device');return;}
+  if(activeUtterance){stopSpeech();toast('Read aloud stopped');return;}
+  const text=$('#replyText').textContent.trim();
+  if(!text){toast('Generate a reply first');return;}
+  window.speechSynthesis.cancel();
+  const utterance=new SpeechSynthesisUtterance(text);
+  utterance.lang='en-US';utterance.rate=.94;utterance.pitch=1;
+  utterance.onend=()=>{if(activeUtterance===utterance){activeUtterance=null;setSpeechButton(false);}};
+  utterance.onerror=event=>{if(activeUtterance===utterance){activeUtterance=null;setSpeechButton(false);if(!['canceled','interrupted'].includes(event.error))toast('Read aloud could not finish');}};
+  activeUtterance=utterance;setSpeechButton(true);window.speechSynthesis.speak(utterance);
+}
+
+function setTweakLoading(loading,label=''){
+  $('#tweakPanel').setAttribute('aria-busy',String(loading));
+  $$('#tweakPanel button').forEach(button=>button.disabled=loading);
+  $('#tweakInput').disabled=loading;
+  if(loading)$('#tweakStatus').textContent=`SHIN is applying ${label.toLowerCase()}…`;
+}
+
+async function refineReply(mode,instruction,label){
+  if(!store.last){toast('Generate a reply first');return;}
+  const currentReply=$('#replyText').textContent.trim();
+  if(!currentReply){toast('There is no reply to tweak yet');return;}
+  const revision={mode,instruction,current_reply:currentReply};
+  stopSpeech();setTweakLoading(true,label);
+  try{
+    const data=await requestGeneration(store.last.source,revision);
+    applyResult(data,store.last.source,{kind:'tweak',tweakLabel:label});
+  }catch(error){
+    console.warn('SHIN tweak unavailable; using local fallback.',error);
+    applyResult(localRefinementFallback(store.last.source,revision),store.last.source,{kind:'tweak',tweakLabel:label});
+    toast(error.message||'Closest offline tweak used');
+  }finally{setTweakLoading(false);}
+}
+
 $('#analyzeBtn').onclick=analyze;
 $('#pasteBtn').onclick=async()=>{try{$('#message').value=await navigator.clipboard.readText();toast('Pasted');}catch{toast('Press and hold inside the box to paste');}};
 $('#copyReply').onclick=async()=>{await navigator.clipboard.writeText($('#replyText').textContent);toast('Reply copied');};
+$('#speakReply').onclick=readReplyAloud;
+$$('[data-tweak]').forEach(button=>button.onclick=()=>{const preset=TWEAK_PRESETS[button.dataset.tweak];if(preset)refineReply(button.dataset.tweak,preset.instruction,preset.label);});
+$('#applyTweak').onclick=()=>{const instruction=$('#tweakInput').value.trim();if(!instruction){toast('Tell SHIN what to change');$('#tweakInput').focus();return;}refineReply('custom',instruction,'Custom tweak');};
+$('#tweakInput').onkeydown=event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();$('#applyTweak').click();}};
 $$('.altTabs button').forEach(b=>b.onclick=()=>{$$('.altTabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#alternateText').textContent=store.last?.alts?.[b.dataset.alt]||'';});
-$('#useAlternate').onclick=()=>{$('#replyText').textContent=$('#alternateText').textContent;if(store.last)store.last.reply=$('#replyText').textContent;toast('Version selected');};
+$('#useAlternate').onclick=()=>{stopSpeech();$('#replyText').textContent=$('#alternateText').textContent;if(store.last)store.last.reply=$('#replyText').textContent;$('#tweakStatus').textContent='Alternate selected. You can still tweak it.';toast('Version selected');};
 $$('[data-rate]').forEach(b=>b.onclick=()=>{store.ratings[b.dataset.rate]=(store.ratings[b.dataset.rate]||0)+1;localStorage.sm_ratings=JSON.stringify(store.ratings);toast(`${b.dataset.rate} saved`);renderStats();});
 $('#savePlaybook').onclick=()=>{if(!store.last)return;store.saved.unshift({...store.last,reply:$('#replyText').textContent});store.saved=store.saved.slice(0,60);localStorage.sm_saved=JSON.stringify(store.saved);renderSaved();renderStats();toast('Saved to Playbook');};
 
