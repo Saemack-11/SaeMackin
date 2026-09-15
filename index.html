@@ -9,7 +9,7 @@
   <title>SaeMackin101</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="assets/icon-180.png">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=42">
 </head>
 <body>
 <div class="ambient"></div>
@@ -90,8 +90,24 @@
     <section class="view" data-view="results">
       <div class="title"><div><p class="kicker">SAEMACKIN READ</p><h2 id="resultTitle">Response ready</h2></div><button id="backToStudio" class="round">←</button></div>
       <article class="response">
-        <div class="responseHead"><i></i><strong>READY TO SEND</strong><button id="copyReply" class="mini">Copy</button></div>
-        <p id="replyText"></p>
+        <div class="responseHead"><i></i><strong>READY TO SEND</strong><div class="responseActions"><button id="speakReply" class="mini" type="button" aria-pressed="false"><span aria-hidden="true">🔊</span> Read aloud</button><button id="copyReply" class="mini" type="button">Copy</button></div></div>
+        <p id="replyText" aria-live="polite"></p>
+        <div id="tweakPanel" class="tweakPanel" aria-busy="false">
+          <div class="tweakHead"><div><small>INSTANT RETRY + TWEAK</small><strong>Switch the temperature without starting over</strong></div><span>✦</span></div>
+          <div class="tweakChips" aria-label="Quick reply tweaks">
+            <button type="button" data-tweak="retry">↻ Instant retry</button>
+            <button type="button" data-tweak="sauce">More sauce</button>
+            <button type="button" data-tweak="toxic">More toxic 😈</button>
+            <button type="button" data-tweak="flirty">More flirting</button>
+            <button type="button" data-tweak="detached">Less emotion</button>
+            <button type="button" data-tweak="shorter">Shorter</button>
+          </div>
+          <div class="customTweak">
+            <input id="tweakInput" type="text" maxlength="240" autocomplete="off" aria-label="Custom reply tweak" placeholder="Or type your tweak: smoother, funnier, keep my wording…">
+            <button id="applyTweak" class="mini" type="button">Tweak it</button>
+          </div>
+          <p id="tweakStatus" class="tweakStatus" role="status" aria-live="polite"></p>
+        </div>
         <div class="ratings" id="ratings">
           <button data-rate="Nailed it">🔥 Nailed it</button>
           <button data-rate="That ain't me">That ain’t me 😂</button>
@@ -154,7 +170,7 @@
   </nav>
   <div id="toast" class="toast"></div>
 </div>
-<script src="app.js"></script>
+<script src="app.js?v=42"></script>
 <script src="sae-screenshots.js?v=41"></script>
 </body>
 </html>

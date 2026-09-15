@@ -1,3 +1,19 @@
+SAEMACKIN101 V4.2 — READ ALOUD + INSTANT TWEAK
+
+ADDED
+- Read aloud / Stop control for the current ready-to-send reply.
+- Instant retry from the result screen without rebuilding the original setup.
+- One-tap More sauce, More toxic, More flirting, Less emotion and Shorter refinements.
+- Custom post-generation tweak field.
+- Revision-aware API input that keeps the original conversation as evidence and the current reply as the draft.
+- Server-owned safety framing for every preset, including the established playful-only Toxic Sae boundary.
+
+UPDATED
+- Fresh refined replies replace the ready-to-send draft and refresh the alternate takes.
+- Read aloud automatically stops when the reply changes or the user leaves the result screen.
+- PWA asset versions and cache identity bumped so installed copies receive the controls.
+- Removed a missing legacy image from the precache list so service-worker installation can complete.
+
 SAEMACKIN101 V4 — UNIVERSAL + ZODIAC CHEAT CODE
 
 ADDED
