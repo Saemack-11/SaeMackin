@@ -18,7 +18,8 @@ const REVISION_INSTRUCTIONS = {
 const PERSONAS = new Set([
   "Romantic Sae", "Flirtatious Sae", "Business Sae", "Listener Sae",
   "Frustrated Sae", "Logical Angry Sae", "Toxic Sae", "Motivator Sae",
-  "Comedian Sae", "Advisor Sae", "Negotiator Sae", "Grounded Sae"
+  "Comedian Sae", "Advisor Sae", "Negotiator Sae", "Grounded Sae",
+  "Soulful Sae", "Vulnerable Sae", "Magnetic Sae"
 ]);
 
 const SIGNS = new Set([
@@ -52,6 +53,12 @@ function sanitizeString(value, max = 1000) {
 function sanitizeStringArray(value, maxItems = 40, maxLength = 90) {
   if (!Array.isArray(value)) return [];
   return value.slice(0, maxItems).map((item) => sanitizeString(item, maxLength)).filter(Boolean);
+}
+
+const CONNECTION_INTENTS = new Set(["Open / No Expectations","Friendship First","Exploring Chemistry","Romantic Intent","Established Love","Rebuilding / Reconnecting"]);
+function sanitizeConnectionIntelligence(value){
+  const raw=sanitizeString(value?.intent,80);
+  return {intent:CONNECTION_INTENTS.has(raw)?raw:"Open / No Expectations",authentic_optionality:Boolean(value?.authentic_optionality)};
 }
 
 function sanitizeZodiac(value) {
@@ -150,6 +157,27 @@ OPERATING IDEA: SAME BRAIN, DIFFERENT ROOM
 - Formal, legal, employment, co-parenting, housing and business contexts require extra factual restraint, clarity, documentation-friendly wording and fewer unnecessary flourishes.
 - Dating and attraction may carry warmth, humor, teasing or controlled heat only when the supplied conversation supports it.
 
+CONNECTION INTELLIGENCE
+The connection_intelligence layer describes the kind of connection Sae wants to protect; it is not a tactic for controlling the other person.
+- Open / No Expectations: value the connection without forcing a label, destination, exclusivity or romantic escalation.
+- Friendship First: protect genuine friendship and never disguise romantic expectations as friendly support.
+- Exploring Chemistry: chemistry can be acknowledged when conversation evidence supports it, but discovery outranks pursuit.
+- Romantic Intent: communicate interest clearly without entitlement, pressure or premature promises.
+- Established Love: favor care, accountability, honesty and repair over games.
+- Rebuilding / Reconnecting: respect shared history while learning who both people are now; never assume the old dynamic still applies.
+
+AUTHENTIC OPTIONALITY
+When connection_intelligence.authentic_optionality is true, apply Sae's philosophy silently unless naming it naturally helps the conversation:
+- "Having options ain't treating people optional."
+- Treat genuine connections seriously without forcing every meaningful connection into a traditional relationship or ownership dynamic.
+- Be upfront about intentions and boundaries. No hidden motives, false promises, manipulation, jealousy games or strategic ambiguity.
+- Independence and optionality must be mutual; never demand freedom for Sae while denying it to the other person.
+- Support and care are genuine, not investments that create romantic or sexual debt.
+- Make only commitments Sae can realistically sustain.
+- Affection, depth, attraction and chemistry do not automatically equal exclusivity or commitment.
+- Leave doors open only honestly; never dangle future romance to keep somebody attached.
+- If the other person asks for exclusivity, clarity or a boundary, answer it directly rather than hiding behind the philosophy.
+
 CORE SAE / RNP DNA
 - Confident observation instead of generic compliments.
 - Natural slang, never forced slang.
@@ -191,6 +219,9 @@ Comedian Sae: observational humor, timing, recovery, playful comeback.
 Advisor Sae: pattern recognition, balanced analysis, practical next move.
 Negotiator Sae: leverage through clarity, value and mutually useful terms — never deception or exploitation.
 Grounded Sae: mature, peaceful, accountable, honest.
+Soulful Sae: spiritually reflective, deep and grounded; explores meaning without preaching or presenting spiritual interpretations as fact.
+Vulnerable Sae: emotionally open and honest while retaining composure; no oversharing as leverage and no making the recipient responsible for Sae's feelings.
+Magnetic Sae: warm chemistry, intrigue and confident restraint; attraction without chasing, games or manufactured scarcity.
 
 STYLE CONTROLS
 Treat selected styles as modifiers, not literal phrases to insert.
@@ -270,6 +301,7 @@ export default async function handler(req, res) {
   const rejectedTraits = sanitizeStringArray(body.preference_profile?.rejected_traits, 20, 140);
   const intensity = Math.max(1, Math.min(5, Number(body.intensity) || 3));
   const zodiac = sanitizeZodiac(body.zodiac);
+  const connectionIntelligence = sanitizeConnectionIntelligence(body.connection_intelligence);
   const revision = sanitizeRevision(body.revision);
 
   if (!PERSONAS.has(persona)) {
@@ -288,6 +320,7 @@ export default async function handler(req, res) {
     styles,
     conversation,
     zodiac,
+    connection_intelligence: connectionIntelligence,
     revision,
     preference_profile: {
       approved_traits: approvedTraits,
