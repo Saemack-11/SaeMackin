@@ -417,6 +417,7 @@ function generationPayload(text,revision){
     styles:[...store.styles],
     conversation:text,
     zodiac:{enabled:store.zodiacEnabled,self_sign:'Scorpio',target_sign:store.zodiacEnabled?store.targetSign:''},
+    connection_intelligence:{intent:store.connectionIntent,authentic_optionality:store.authenticOptionality},
     preference_profile:getPreferenceProfile(),
     ...(revision?{revision}: {})
   };
