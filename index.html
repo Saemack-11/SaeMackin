@@ -9,7 +9,7 @@
   <title>SaeMackin101</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="assets/icon-180.png">
-  <link rel="stylesheet" href="styles.css?v=42">
+  <link rel="stylesheet" href="styles.css?v=43">
 </head>
 <body>
 <div class="ambient"></div>
@@ -47,6 +47,14 @@
           <label>Who is this?<select id="relationship"></select></label>
           <label>What happened?<select id="situation"></select></label>
           <label>What do you want?<select id="goal"></select></label>
+        </div>
+
+        <div class="connectionPanel" id="connectionPanel">
+          <div class="connectionTop"><div><p class="kicker">CONNECTION INTELLIGENCE · V4.3</p><h3>What are we protecting?</h3></div></div>
+          <label>Connection intent<select id="connectionIntent"></select></label>
+          <p id="connectionHint" class="muted"></p>
+          <div class="optionalityRow"><div><strong>Authentic Optionality</strong><span>Pure intentions · equal freedom · no forced labels · no hidden motives</span></div><button id="optionalityToggle" class="switch" type="button" role="switch" aria-checked="false"><span></span></button></div>
+          <small class="optionalityQuote">“Having options ain’t treating people optional.”</small>
         </div>
 
         <div class="zodiacPanel" id="zodiacPanel">
@@ -170,7 +178,7 @@
   </nav>
   <div id="toast" class="toast"></div>
 </div>
-<script src="app.js?v=42"></script>
+<script src="app.js?v=43"></script>
 <script src="sae-screenshots.js?v=41"></script>
 </body>
 </html>

@@ -10,7 +10,10 @@ const PERSONAS=[
   {name:'Comedian Sae',slug:'comedian',icon:'🎤',desc:'Timing, room reading, quick recovery and heckler composure.'},
   {name:'Advisor Sae',slug:'advisor',icon:'🧠',desc:'Balanced analysis, honest patterns and practical next moves.'},
   {name:'Negotiator Sae',slug:'negotiator',icon:'🤝',desc:'Calm leverage, clear value and mutually useful terms.'},
-  {name:'Grounded Sae',slug:'grounded',icon:'🧘🏾',desc:'Mature, peaceful, accountable and centered.'}
+  {name:'Grounded Sae',slug:'grounded',icon:'🧘🏾',desc:'Mature, peaceful, accountable and centered.'},
+  {name:'Soulful Sae',slug:'grounded',icon:'🪬',desc:'Deep, spiritual and reflective without preaching or forcing meaning.'},
+  {name:'Vulnerable Sae',slug:'listener',icon:'🫀',desc:'Open and emotionally honest without oversharing, begging or losing composure.'},
+  {name:'Magnetic Sae',slug:'flirtatious',icon:'🧲',desc:'Chemistry, intrigue and warmth with space to breathe — attraction without chasing.'}
 ];
 
 const REL_GROUPS={
@@ -32,6 +35,16 @@ const GOAL_GROUPS={
   'CLARITY + REPAIR':['Apologize','Explain myself','Clear up a misunderstanding','De-escalate tension','Repair the connection','Reconnect after distance','Respond to a late reply','Respond after being left on read','Ask where we stand','Get clarity','Ask for honesty'],
   'BOUNDARIES + SELF-RESPECT':['Call something out','Address disrespect','Set a boundary','Say no','Ask for space','Give them space','Stand my ground','Decline respectfully','End the conversation respectfully','End the conversation completely'],
   'PLANS + BUSINESS':['Make a request','Ask for a favor','Follow up','Confirm plans','Reschedule','Negotiate an agreement','Negotiate pay','Ask about payment','Resolve a business issue','Respond professionally','Make a strong first impression']
+};
+
+const CONNECTION_INTENTS=['Open / No Expectations','Friendship First','Exploring Chemistry','Romantic Intent','Established Love','Rebuilding / Reconnecting'];
+const INTENT_HINTS={
+  'Open / No Expectations':'Value the connection without forcing a label or destination.',
+  'Friendship First':'Protect genuine friendship; never hide romantic expectations inside friendly support.',
+  'Exploring Chemistry':'Acknowledge mutual chemistry when supported, but let discovery outrank pursuit.',
+  'Romantic Intent':'Be clear about romantic interest without pressure, entitlement or premature commitment.',
+  'Established Love':'Communicate from an existing committed bond; favor care, honesty and repair over games.',
+  'Rebuilding / Reconnecting':'Respect history while getting to know who both people are now; do not assume the old dynamic still applies.'
 };
 
 const QUICK_STYLES=['More slang','Less slang','Shorter','More detailed','More playful','More serious','More flirty','More direct','More compassionate','Add humor','Remove emotion','Voice-message style'];
@@ -71,6 +84,8 @@ const PRINCIPLES=[
   ['Comedian’s Composure','Read the room, handle tension without losing character, then keep the interaction moving.'],
   ['Exit With Dignity','Not every conversation needs to be rescued. Sometimes composure means no longer forcing it.'],
   ['Same Brain. Different Room.','Your voice stays recognizable, but the delivery changes for dating, family, work, business, co-parenting and formal situations.'],
+  ['Authentic Optionality','Having options ain’t treating people optional. Be honest about intentions, allow equal freedom, value genuine connection without forced labels, never use hidden motives, and only promise commitments you can realistically sustain.'],
+  ['Connection Before Destination','Depth, attraction and chemistry can be meaningful without automatically becoming a relationship. Protect what is real before forcing a definition.'],
   ['Zodiac Is a Lens, Not Evidence','Use sign archetypes to inspire questions and pacing. Never treat a sign as proof of motives, compatibility, honesty or character.']
 ];
 
@@ -86,6 +101,8 @@ const store={
   signUsage:safeParse('sm_sign_usage',{}),
   zodiacEnabled:localStorage.sm_zodiac_enabled==='true',
   targetSign:localStorage.sm_target_sign||'Gemini',
+  connectionIntent:localStorage.sm_connection_intent||'Open / No Expectations',
+  authenticOptionality:localStorage.sm_authentic_optionality==='true',
   last:null
 };
 
@@ -120,7 +137,15 @@ function fillGrouped(el,groups){
   });
 }
 function restoreSelect(el,key,fallback){const wanted=localStorage.getItem(key)||fallback;if([...el.options].some(o=>o.value===wanted))el.value=wanted;}
-fillGrouped($('#relationship'),REL_GROUPS);fillGrouped($('#situation'),SITUATION_GROUPS);fillGrouped($('#goal'),GOAL_GROUPS);
+fillGrouped($('#relationship'),REL_GROUPS);
+$('#connectionIntent').innerHTML=CONNECTION_INTENTS.map(x=>`<option value="${x}">${x}</option>`).join('');
+$('#connectionIntent').value=CONNECTION_INTENTS.includes(store.connectionIntent)?store.connectionIntent:CONNECTION_INTENTS[0];
+$('#connectionIntent').onchange=e=>{store.connectionIntent=e.target.value;localStorage.sm_connection_intent=store.connectionIntent;renderConnectionIntelligence();};
+function renderConnectionIntelligence(){
+  $('#connectionHint').textContent=INTENT_HINTS[store.connectionIntent]||'';
+  const t=$('#optionalityToggle');t.classList.toggle('on',store.authenticOptionality);t.setAttribute('aria-checked',String(store.authenticOptionality));
+}
+$('#optionalityToggle').onclick=()=>{store.authenticOptionality=!store.authenticOptionality;localStorage.sm_authentic_optionality=String(store.authenticOptionality);renderConnectionIntelligence();toast(store.authenticOptionality?'Authentic Optionality on — genuine connection, no forced outcome':'Authentic Optionality off');};fillGrouped($('#situation'),SITUATION_GROUPS);fillGrouped($('#goal'),GOAL_GROUPS);
 restoreSelect($('#relationship'),'sm_relationship','Dating');
 restoreSelect($('#situation'),'sm_situation','Something else / let the conversation explain it');
 restoreSelect($('#goal'),'sm_goal','Let them feel heard');
@@ -148,7 +173,7 @@ function renderZodiac(){
   $('#zodiacHintText').textContent=`${z.cue} ${z.watch}`;
 }
 $('#targetSign').innerHTML=SIGNS.map(s=>`<option value="${s}">${ZODIAC[s].symbol} ${s}</option>`).join('');
-$('#zodiacToggle').onclick=()=>{store.zodiacEnabled=!store.zodiacEnabled;localStorage.sm_zodiac_enabled=String(store.zodiacEnabled);renderZodiac();toast(store.zodiacEnabled?'Zodiac Cheat Code on — archetype lens only':'Zodiac Cheat Code off');};
+$('#zodiacToggle').onclick=()=>{store.zodiacEnabled=!store.zodiacEnabled;localStorage.sm_zodiac_enabled=String(store.zodiacEnabled);renderZodiac();renderConnectionIntelligence();toast(store.zodiacEnabled?'Zodiac Cheat Code on — archetype lens only':'Zodiac Cheat Code off');};
 $('#targetSign').onchange=e=>{store.targetSign=e.target.value;localStorage.sm_target_sign=store.targetSign;renderZodiac();};
 
 function inferTone(text){
@@ -173,7 +198,10 @@ function opener(p){return {
   'Comedian Sae':'See, now you done gave me material 😂',
   'Advisor Sae':'Let’s separate what happened from the assumptions we could make about it.',
   'Negotiator Sae':'I believe there’s a fair outcome here that respects both sides.',
-  'Grounded Sae':'I understand where you’re coming from, and I want to answer without reacting carelessly.'
+  'Grounded Sae':'I understand where you’re coming from, and I want to answer without reacting carelessly.',
+  'Soulful Sae':'I feel what you’re saying. Some conversations hit deeper when you can be real without forcing meaning onto them.',
+  'Vulnerable Sae':'I can be real about what I feel without making you responsible for it.',
+  'Magnetic Sae':'I’m not gonna lie, there’s something about how naturally this flows that I’m enjoying.'
 }[p]||'I hear you.';}
 
 const GOAL_COPY={
@@ -389,6 +417,7 @@ function generationPayload(text,revision){
     styles:[...store.styles],
     conversation:text,
     zodiac:{enabled:store.zodiacEnabled,self_sign:'Scorpio',target_sign:store.zodiacEnabled?store.targetSign:''},
+    connection_intelligence:{intent:store.connectionIntent,authentic_optionality:store.authenticOptionality},
     preference_profile:getPreferenceProfile(),
     ...(revision?{revision}: {})
   };
