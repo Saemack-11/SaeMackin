@@ -1,6 +1,15 @@
-# SaeMackin101 — SHIN Intelligence V4.2
+# SaeMackin101 — SHIN Intelligence V4.3
 
 Mobile-first communication PWA built around one rule: **same Sae brain, different room**. V4 broadens Studio from a mostly dating-oriented responder into a universal communication system while preserving the Sae/RNP voice.
+
+## V4.3 — Connection Intelligence + Authentic Optionality
+
+V4.3 adds a relationship-intent layer without turning Studio into a cockpit:
+- Connection Intent: Open / No Expectations, Friendship First, Exploring Chemistry, Romantic Intent, Established Love, Rebuilding / Reconnecting.
+- Optional Authentic Optionality philosophy: pure intentions, mutual independence, no hidden motives, no forced labels, and only sustainable commitments. Core line: **“Having options ain’t treating people optional.”**
+- New Soulful Sae, Vulnerable Sae and Magnetic Sae modes layered onto the existing Sae brain.
+- SHIN explicitly distinguishes depth/chemistry from automatic romantic escalation and protects clear boundaries or requests for exclusivity.
+- Connection settings stay local in browser storage and are sent with generation context only when generating a response.
 
 ## V4.2 — Read Aloud + Instant Tweak
 
