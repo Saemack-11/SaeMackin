@@ -6,6 +6,11 @@ const MAX_REQUESTS = 18;
 const MAX_MESSAGE_CHARS = 8_000;
 
 const MODES = {
+  auto: {
+    label: "Auto",
+    persona: "Adaptive Sae",
+    instruction: "Read the room and automatically choose the most appropriate energy: smooth, sauce, direct, solid, funny, or neutral SHIN. Do not force flirting or humor. Match the relationship and stakes visible in the supplied message."
+  },
   shin: {
     label: "SHIN",
     persona: "Grounded Sae",
@@ -41,7 +46,7 @@ const MODES = {
 const responseSchema = {
   type: "object",
   additionalProperties: false,
-  required: ["reply", "alternates", "room_read"],
+  required: ["reply", "alternates", "room_read", "selected_mode"],
   properties: {
     reply: { type: "string" },
     alternates: {
@@ -54,7 +59,8 @@ const responseSchema = {
         direct: { type: "string" }
       }
     },
-    room_read: { type: "string" }
+    room_read: { type: "string" },
+    selected_mode: { type: "string", enum: ["shin", "smooth", "sauce", "direct", "solid", "funny"] }
   }
 };
 
@@ -74,7 +80,7 @@ VOICE
 - Do not claim to know what another person secretly thinks. room_read should label interpretation as uncertain.
 - Return ready-to-send text, not advice wrapped around the reply.
 - Keep the primary reply compact enough for a keyboard workflow unless the incoming message clearly requires detail.
-- Return only the required structured data.
+- In Auto mode, selected_mode must report the response energy you actually chose. In explicit modes, selected_mode should match that requested energy where applicable.\n- Return only the required structured data.
 `;
 
 function clean(value, max = 1000) {
@@ -115,8 +121,8 @@ export default async function handler(req, res) {
   }
 
   const message = clean(req.body?.message, MAX_MESSAGE_CHARS);
-  const modeKey = clean(req.body?.mode, 20).toLowerCase() || "shin";
-  const mode = MODES[modeKey] || MODES.shin;
+  const modeKey = clean(req.body?.mode, 20).toLowerCase() || "auto";
+  const mode = MODES[modeKey] || MODES.auto;
   const customDirection = clean(req.body?.direction, 240);
 
   if (!message) {
