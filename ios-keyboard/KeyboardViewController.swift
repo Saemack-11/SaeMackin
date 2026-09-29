@@ -15,7 +15,7 @@ final class KeyboardViewController: UIInputViewController {
     private var task: URLSessionDataTask?
 
     // Replace with the production SaeMackin deployment URL in the Xcode target.
-    private let apiURL = URL(string: "https://YOUR-SAEMACKIN-DOMAIN/api/keyboard")!
+    private let apiURL = URL(string: "https://saemackin101.vercel.app/api/keyboard")!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -127,11 +127,6 @@ final class KeyboardViewController: UIInputViewController {
             outputLabel.text = "Copy a message and tap Paste first."
             return
         }
-        guard apiURL.host != "YOUR-SAEMACKIN-DOMAIN" else {
-            outputLabel.text = "Set the production SaeMackin API URL in the Xcode target."
-            return
-        }
-
         task?.cancel()
         outputLabel.text = "SHIN is thinking…"
         statusLabel.text = "Generating \(selectedMode.capitalized)…"
