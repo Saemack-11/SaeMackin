@@ -419,47 +419,60 @@ async function analyze(){
 }
 
 let activeUtterance=null;
+let activeAudio=null;
+let activeAudioUrl='';
 const EMOJI_CHOICES=['😂','😭','🤣','😏','😌','🥰','😍','😘','😈','👀','🤭','🫠','😮‍💨','🤦🏽‍♂️','🤷🏽‍♂️','🫡','🤝🏽','🫶🏽','🙏🏽','💯','🔥','❤️','❤️‍🔥','🖤','✨','💫','🦂','♏','😎','🥶','😤','🙃','😉','😇','🤞🏽','👏🏽','💪🏽','🧘🏽‍♂️'];
 const VOICE_VIBES={smooth:{rate:.92,pitch:.96},chill:{rate:.88,pitch:.95},confident:{rate:.96,pitch:.9},flirty:{rate:.9,pitch:1.04},professional:{rate:1,pitch:1}};
-function setSpeechButton(speaking=false){
-  const button=$('#speakReply');
-  if(!button)return;
+function setSpeechButton(speaking=false,loading=false){
+  const button=$('#speakReply');if(!button)return;
   button.setAttribute('aria-pressed',String(speaking));
-  button.innerHTML=speaking?'■ Stop':'<span aria-hidden="true">🔊</span> Read aloud';
+  button.disabled=loading;
+  button.innerHTML=loading?'◌ Generating voice…':speaking?'■ Stop':'<span aria-hidden="true">🔊</span> Read aloud';
 }
 function stopSpeech(){
   if('speechSynthesis'in window)window.speechSynthesis.cancel();
+  if(activeAudio){activeAudio.pause();activeAudio.currentTime=0;activeAudio=null;}
+  if(activeAudioUrl){URL.revokeObjectURL(activeAudioUrl);activeAudioUrl='';}
   activeUtterance=null;setSpeechButton(false);
 }
 function populateVoices(){
   const select=$('#voiceSelect');if(!select||!('speechSynthesis'in window))return;
-  const current=select.value;
-  const voices=window.speechSynthesis.getVoices().filter(v=>/^en(-|_)/i.test(v.lang));
+  const current=select.value,voices=window.speechSynthesis.getVoices().filter(v=>/^en(-|_)/i.test(v.lang));
   select.innerHTML='<option value="">Best available voice</option>'+voices.map((v,i)=>'<option value="'+i+'">'+escapeHTML(v.name)+' · '+escapeHTML(v.lang)+'</option>').join('');
   if([...select.options].some(o=>o.value===current))select.value=current;
 }
 function chosenVoice(){
-  const voices=window.speechSynthesis.getVoices().filter(v=>/^en(-|_)/i.test(v.lang));
-  const raw=$('#voiceSelect')?.value;
+  const voices=window.speechSynthesis.getVoices().filter(v=>/^en(-|_)/i.test(v.lang)),raw=$('#voiceSelect')?.value;
   if(raw!==''){const selected=voices[Number(raw)];if(selected)return selected;}
   return voices.find(v=>/premium|enhanced|natural|siri/i.test(v.name))||voices.find(v=>/en-US/i.test(v.lang))||voices[0]||null;
 }
-function readReplyAloud(){
-  if(!('speechSynthesis'in window)||!('SpeechSynthesisUtterance'in window)){toast('Read aloud is not supported on this device');return;}
-  if(activeUtterance){stopSpeech();toast('Read aloud stopped');return;}
-  const text=$('#replyText').textContent.trim();
-  if(!text){toast('Generate a reply first');return;}
-  window.speechSynthesis.cancel();
-  const utterance=new SpeechSynthesisUtterance(text);
-  const vibe=VOICE_VIBES[$('#voiceVibe')?.value]||VOICE_VIBES.smooth;
-  const manualRate=Number($('#voiceRate')?.value||vibe.rate);
-  utterance.lang='en-US';utterance.rate=manualRate;utterance.pitch=vibe.pitch;
+function deviceSpeech(text){
+  if(!('speechSynthesis'in window)||!('SpeechSynthesisUtterance'in window)){toast('Read aloud is not supported on this device');setSpeechButton(false);return;}
+  const utterance=new SpeechSynthesisUtterance(text),vibe=VOICE_VIBES[$('#voiceVibe')?.value]||VOICE_VIBES.smooth;
+  utterance.lang='en-US';utterance.rate=Number($('#voiceRate')?.value||vibe.rate);utterance.pitch=vibe.pitch;
   const voice=chosenVoice();if(voice)utterance.voice=voice;
   utterance.onend=()=>{if(activeUtterance===utterance){activeUtterance=null;setSpeechButton(false);}};
   utterance.onerror=event=>{if(activeUtterance===utterance){activeUtterance=null;setSpeechButton(false);if(!['canceled','interrupted'].includes(event.error))toast('Read aloud could not finish');}};
   activeUtterance=utterance;setSpeechButton(true);window.speechSynthesis.speak(utterance);
 }
-
+async function readReplyAloud(){
+  if(activeUtterance||activeAudio){stopSpeech();toast('Read aloud stopped');return;}
+  const text=$('#replyText').textContent.trim();if(!text){toast('Generate a reply first');return;}
+  stopSpeech();setSpeechButton(false,true);
+  try{
+    const response=await fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,vibe:$('#voiceVibe')?.value||'smooth'})});
+    if(!response.ok)throw new Error('AI voice unavailable');
+    const blob=await response.blob();if(!blob.type.startsWith('audio/'))throw new Error('Invalid audio response');
+    activeAudioUrl=URL.createObjectURL(blob);activeAudio=new Audio(activeAudioUrl);
+    activeAudio.playbackRate=Number($('#voiceRate')?.value||1);
+    activeAudio.onended=()=>stopSpeech();
+    activeAudio.onerror=()=>{stopSpeech();toast('AI voice playback failed — using device voice');deviceSpeech(text);};
+    setSpeechButton(true);await activeAudio.play();
+  }catch(error){
+    console.warn('AI voice unavailable; using device voice.',error);
+    setSpeechButton(false);toast('Using device voice fallback');deviceSpeech(text);
+  }
+}
 function setTweakLoading(loading,label=''){
   $('#tweakPanel').setAttribute('aria-busy',String(loading));
   $$('#tweakPanel button').forEach(button=>button.disabled=loading);
