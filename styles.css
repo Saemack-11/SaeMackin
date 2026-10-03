@@ -16,3 +16,12 @@
 
 /* ===== V4.3 Emoji Palette + Natural Voice Controls ===== */
 .quickPanel{margin:10px 0 4px;padding:12px;border:1px solid rgba(246,208,109,.22);border-radius:16px;background:rgba(0,0,0,.3)}.quickPanelHead{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}.quickPanelHead strong{color:var(--gold2);font-size:.76rem}.quickPanelHead small{color:var(--muted);font-size:.62rem}.emojiChoices{display:grid;grid-template-columns:repeat(8,1fr);gap:7px}.emojiChoices button{min-height:38px;border:1px solid rgba(240,193,89,.2);border-radius:11px;background:rgba(255,255,255,.04);font-size:1.18rem}.emojiChoices button:active{transform:scale(.92);background:rgba(246,208,109,.16)}.voiceControls{display:grid;grid-template-columns:1fr 1.35fr 1fr;gap:9px}.voiceControls label{font-size:.65rem}.voiceControls select{padding:9px 10px;font-size:.72rem}.voiceControls input[type=range]{margin:4px 0 0}.voiceControls label span{color:var(--gold2);font-size:.65rem;text-align:right}#voiceToggle[aria-expanded="true"],#emojiToggle[aria-expanded="true"]{color:#170f04;background:var(--gold2);border-color:var(--gold2)}@media(max-width:520px){.emojiChoices{grid-template-columns:repeat(6,1fr)}.voiceControls{grid-template-columns:1fr}.responseActions{flex-wrap:wrap}.responseActions .mini{flex:1 1 42%}}
+
+/* v45 · First Interaction */
+.entryModes{margin:0 0 14px}
+.entryMode{width:100%;display:flex;gap:12px;align-items:center;text-align:left;padding:14px 15px;border:1px solid rgba(214,170,74,.34);border-radius:18px;background:linear-gradient(135deg,rgba(214,170,74,.12),rgba(255,255,255,.025));color:inherit}
+.entryMode>span{font-size:1.55rem}
+.entryMode div{display:grid;gap:3px}
+.entryMode strong{color:#f1d28b;letter-spacing:.02em}
+.entryMode small{color:var(--muted);line-height:1.35}
+.entryMode:active{transform:scale(.99)}
