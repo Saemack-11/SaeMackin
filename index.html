@@ -9,7 +9,7 @@
   <title>SaeMackin101</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="assets/icon-180.png">
-  <link rel="stylesheet" href="styles.css?v=42">
+  <link rel="stylesheet" href="styles.css?v=43">
 </head>
 <body>
 <div class="ambient"></div>
@@ -90,7 +90,9 @@
     <section class="view" data-view="results">
       <div class="title"><div><p class="kicker">SAEMACKIN READ</p><h2 id="resultTitle">Response ready</h2></div><button id="backToStudio" class="round">←</button></div>
       <article class="response">
-        <div class="responseHead"><i></i><strong>READY TO SEND</strong><div class="responseActions"><button id="speakReply" class="mini" type="button" aria-pressed="false"><span aria-hidden="true">🔊</span> Read aloud</button><button id="copyReply" class="mini" type="button">Copy</button></div></div>
+        <div class="responseHead"><i></i><strong>READY TO SEND</strong><div class="responseActions"><button id="emojiToggle" class="mini" type="button" aria-expanded="false">😊 Emoji</button><button id="speakReply" class="mini" type="button" aria-pressed="false"><span aria-hidden="true">🔊</span> Read aloud</button><button id="voiceToggle" class="mini" type="button" aria-expanded="false">🎙 Voice</button><button id="copyReply" class="mini" type="button">Copy</button></div></div>
+        <div id="emojiPanel" class="quickPanel hidden"><div class="quickPanelHead"><strong>Emoji palette</strong><small>Tap to add to the reply</small></div><div id="emojiChoices" class="emojiChoices"></div></div>
+        <div id="voicePanel" class="quickPanel voicePanel hidden"><div class="quickPanelHead"><strong>Read Aloud voice</strong><small>Natural delivery controls</small></div><div class="voiceControls"><label>Vibe<select id="voiceVibe"><option value="smooth">Smooth</option><option value="chill">Chill</option><option value="confident">Confident</option><option value="flirty">Flirty</option><option value="professional">Professional</option></select></label><label>Voice<select id="voiceSelect"><option value="">Best available voice</option></select></label><label>Speed<input id="voiceRate" type="range" min="0.82" max="1.08" step="0.02" value="0.94"><span id="voiceRateText">0.94×</span></label></div></div>
         <p id="replyText" aria-live="polite"></p>
         <div id="tweakPanel" class="tweakPanel" aria-busy="false">
           <div class="tweakHead"><div><small>INSTANT RETRY + TWEAK</small><strong>Switch the temperature without starting over</strong></div><span>✦</span></div>
@@ -170,7 +172,7 @@
   </nav>
   <div id="toast" class="toast"></div>
 </div>
-<script src="app.js?v=42"></script>
+<script src="app.js?v=43"></script>
 <script src="sae-screenshots.js?v=41"></script>
 </body>
 </html>

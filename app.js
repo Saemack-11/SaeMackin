@@ -419,6 +419,8 @@ async function analyze(){
 }
 
 let activeUtterance=null;
+const EMOJI_CHOICES=['😂','😭','🤣','😏','😌','🥰','😍','😘','😈','👀','🤭','🫠','😮‍💨','🤦🏽‍♂️','🤷🏽‍♂️','🫡','🤝🏽','🫶🏽','🙏🏽','💯','🔥','❤️','❤️‍🔥','🖤','✨','💫','🦂','♏','😎','🥶','😤','🙃','😉','😇','🤞🏽','👏🏽','💪🏽','🧘🏽‍♂️'];
+const VOICE_VIBES={smooth:{rate:.92,pitch:.96},chill:{rate:.88,pitch:.95},confident:{rate:.96,pitch:.9},flirty:{rate:.9,pitch:1.04},professional:{rate:1,pitch:1}};
 function setSpeechButton(speaking=false){
   const button=$('#speakReply');
   if(!button)return;
@@ -429,6 +431,19 @@ function stopSpeech(){
   if('speechSynthesis'in window)window.speechSynthesis.cancel();
   activeUtterance=null;setSpeechButton(false);
 }
+function populateVoices(){
+  const select=$('#voiceSelect');if(!select||!('speechSynthesis'in window))return;
+  const current=select.value;
+  const voices=window.speechSynthesis.getVoices().filter(v=>/^en(-|_)/i.test(v.lang));
+  select.innerHTML='<option value="">Best available voice</option>'+voices.map((v,i)=>'<option value="'+i+'">'+escapeHTML(v.name)+' · '+escapeHTML(v.lang)+'</option>').join('');
+  if([...select.options].some(o=>o.value===current))select.value=current;
+}
+function chosenVoice(){
+  const voices=window.speechSynthesis.getVoices().filter(v=>/^en(-|_)/i.test(v.lang));
+  const raw=$('#voiceSelect')?.value;
+  if(raw!==''){const selected=voices[Number(raw)];if(selected)return selected;}
+  return voices.find(v=>/premium|enhanced|natural|siri/i.test(v.name))||voices.find(v=>/en-US/i.test(v.lang))||voices[0]||null;
+}
 function readReplyAloud(){
   if(!('speechSynthesis'in window)||!('SpeechSynthesisUtterance'in window)){toast('Read aloud is not supported on this device');return;}
   if(activeUtterance){stopSpeech();toast('Read aloud stopped');return;}
@@ -436,7 +451,10 @@ function readReplyAloud(){
   if(!text){toast('Generate a reply first');return;}
   window.speechSynthesis.cancel();
   const utterance=new SpeechSynthesisUtterance(text);
-  utterance.lang='en-US';utterance.rate=.94;utterance.pitch=1;
+  const vibe=VOICE_VIBES[$('#voiceVibe')?.value]||VOICE_VIBES.smooth;
+  const manualRate=Number($('#voiceRate')?.value||vibe.rate);
+  utterance.lang='en-US';utterance.rate=manualRate;utterance.pitch=vibe.pitch;
+  const voice=chosenVoice();if(voice)utterance.voice=voice;
   utterance.onend=()=>{if(activeUtterance===utterance){activeUtterance=null;setSpeechButton(false);}};
   utterance.onerror=event=>{if(activeUtterance===utterance){activeUtterance=null;setSpeechButton(false);if(!['canceled','interrupted'].includes(event.error))toast('Read aloud could not finish');}};
   activeUtterance=utterance;setSpeechButton(true);window.speechSynthesis.speak(utterance);
@@ -469,6 +487,12 @@ $('#analyzeBtn').onclick=analyze;
 $('#pasteBtn').onclick=async()=>{try{$('#message').value=await navigator.clipboard.readText();toast('Pasted');}catch{toast('Press and hold inside the box to paste');}};
 $('#copyReply').onclick=async()=>{await navigator.clipboard.writeText($('#replyText').textContent);toast('Reply copied');};
 $('#speakReply').onclick=readReplyAloud;
+const emojiChoices=$('#emojiChoices');if(emojiChoices){emojiChoices.innerHTML=EMOJI_CHOICES.map(e=>'<button type="button" aria-label="Add '+e+'">'+e+'</button>').join('');emojiChoices.querySelectorAll('button').forEach((b,i)=>b.onclick=()=>{const reply=$('#replyText');reply.textContent=(reply.textContent.trimEnd()+' '+EMOJI_CHOICES[i]).trim();if(store.last)store.last.reply=reply.textContent;toast('Emoji added');});}
+$('#emojiToggle').onclick=()=>{const panel=$('#emojiPanel');panel.classList.toggle('hidden');$('#emojiToggle').setAttribute('aria-expanded',String(!panel.classList.contains('hidden')));};
+$('#voiceToggle').onclick=()=>{const panel=$('#voicePanel');panel.classList.toggle('hidden');$('#voiceToggle').setAttribute('aria-expanded',String(!panel.classList.contains('hidden')));populateVoices();};
+if('speechSynthesis'in window){populateVoices();window.speechSynthesis.onvoiceschanged=populateVoices;}
+$('#voiceVibe').onchange=()=>{const vibe=VOICE_VIBES[$('#voiceVibe').value];$('#voiceRate').value=vibe.rate;$('#voiceRateText').textContent=vibe.rate.toFixed(2)+'×';stopSpeech();};
+$('#voiceRate').oninput=()=>{$('#voiceRateText').textContent=Number($('#voiceRate').value).toFixed(2)+'×';stopSpeech();};
 $$('[data-tweak]').forEach(button=>button.onclick=()=>{const preset=TWEAK_PRESETS[button.dataset.tweak];if(preset)refineReply(button.dataset.tweak,preset.instruction,preset.label);});
 $('#applyTweak').onclick=()=>{const instruction=$('#tweakInput').value.trim();if(!instruction){toast('Tell SHIN what to change');$('#tweakInput').focus();return;}refineReply('custom',instruction,'Custom tweak');};
 $('#tweakInput').onkeydown=event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();$('#applyTweak').click();}};
