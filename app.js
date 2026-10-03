@@ -38,6 +38,7 @@ const QUICK_STYLES=['More slang','Less slang','Shorter','More detailed','More pl
 const MORE_STYLES=['More confident','More assertive','More respectful','More vulnerable','More affectionate','More romantic','More smooth','More mysterious','More reassuring','More supportive','More chill','More casual','More polished','More professional','More persuasive','More protective','More detached','More emotionally controlled','More blunt','More thoughtful','More heartfelt','More mature','Hold my frame','Don’t sound thirsty','Don’t over-explain','Match their energy','Keep my dignity','Say it without chasing','Apply pressure','Play it cool','Read between the lines','Keep my wording','Text-message style','One-liner','Paragraph style'];
 const ALL_STYLES=[...QUICK_STYLES,...MORE_STYLES];
 const LEVELS=['Soft','Calm Sae','Confident Sae','Bold','Unfiltered Sae'];
+const FIRST_INTERACTION_STYLE='First Interaction · personality first';
 const SIGNS=['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
 const TWEAK_PRESETS={
   retry:{label:'Instant retry',instruction:'Give me a genuinely fresh take with different wording and rhythm. Keep the same facts, goal, boundaries and overall selected energy.'},
@@ -94,6 +95,19 @@ function show(v){stopSpeech();$$('.view').forEach(x=>x.classList.toggle('active'
 $$('[data-nav]').forEach(b=>b.onclick=()=>show(b.dataset.nav));
 $$('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
 $('#backToStudio').onclick=()=>show('studio');
+$('#firstInteractionMode').onclick=()=>{
+  $('#relationship').value='New interest';
+  $('#situation').value='First message';
+  $('#goal').value='Build attraction';
+  store.persona='Flirtatious Sae';
+  store.styles.add(FIRST_INTERACTION_STYLE);
+  localStorage.sm_relationship='New interest';localStorage.sm_situation='First message';localStorage.sm_goal='Build attraction';
+  localStorage.sm_persona=store.persona;localStorage.sm_styles=JSON.stringify([...store.styles]);
+  renderPersonas();renderMode();renderChips();
+  $('#message').placeholder='Drop her message, bio, profile details, or what caught your attention beyond her looks...';
+  $('#message').focus();
+  toast('First Interaction loaded · personality first');
+};
 
 function renderPersonas(){
   const box=$('#personas'); box.innerHTML='';
@@ -422,7 +436,21 @@ let activeUtterance=null;
 let activeAudio=null;
 let activeAudioUrl='';
 const EMOJI_CHOICES=['😂','😭','🤣','😏','😌','🥰','😍','😘','😈','👀','🤭','🫠','😮‍💨','🤦🏽‍♂️','🤷🏽‍♂️','🫡','🤝🏽','🫶🏽','🙏🏽','💯','🔥','❤️','❤️‍🔥','🖤','✨','💫','🦂','♏','😎','🥶','😤','🙃','😉','😇','🤞🏽','👏🏽','💪🏽','🧘🏽‍♂️'];
-const VOICE_VIBES={smooth:{rate:.92,pitch:.96},chill:{rate:.88,pitch:.95},confident:{rate:.96,pitch:.9},flirty:{rate:.9,pitch:1.04},professional:{rate:1,pitch:1}};
+const VOICE_VIBES={
+  warm:{rate:.92,pitch:1.03,voice:'nova'},
+  mature:{rate:.9,pitch:.98,voice:'shimmer'},
+  playful:{rate:.96,pitch:1.08,voice:'coral'},
+  confident:{rate:.95,pitch:1.0,voice:'nova'},
+  flirty:{rate:.9,pitch:1.07,voice:'coral'},
+  polished:{rate:.98,pitch:1.02,voice:'shimmer'},
+  slang:{rate:.94,pitch:1.04,voice:'nova'}
+};
+const FEMALE_VOICE_HINTS=/samantha|victoria|karen|moira|tessa|ava|allison|susan|zira|female|woman|siri female/i;
+function englishVoices(){return window.speechSynthesis.getVoices().filter(v=>/^en(-|_)/i.test(v.lang));}
+function femaleDeviceVoices(){
+  const voices=englishVoices(),matched=voices.filter(v=>FEMALE_VOICE_HINTS.test(v.name));
+  return matched.length?matched:voices.filter(v=>/premium|enhanced|natural|siri/i.test(v.name));
+}
 function setSpeechButton(speaking=false,loading=false){
   const button=$('#speakReply');if(!button)return;
   button.setAttribute('aria-pressed',String(speaking));
@@ -437,18 +465,18 @@ function stopSpeech(){
 }
 function populateVoices(){
   const select=$('#voiceSelect');if(!select||!('speechSynthesis'in window))return;
-  const current=select.value,voices=window.speechSynthesis.getVoices().filter(v=>/^en(-|_)/i.test(v.lang));
-  select.innerHTML='<option value="">Best available voice</option>'+voices.map((v,i)=>'<option value="'+i+'">'+escapeHTML(v.name)+' · '+escapeHTML(v.lang)+'</option>').join('');
+  const current=select.value,voices=femaleDeviceVoices();
+  select.innerHTML='<option value="">Best available female voice</option>'+voices.map((v,i)=>'<option value="'+i+'">'+escapeHTML(v.name)+' · '+escapeHTML(v.lang)+'</option>').join('');
   if([...select.options].some(o=>o.value===current))select.value=current;
 }
 function chosenVoice(){
-  const voices=window.speechSynthesis.getVoices().filter(v=>/^en(-|_)/i.test(v.lang)),raw=$('#voiceSelect')?.value;
+  const voices=femaleDeviceVoices(),raw=$('#voiceSelect')?.value;
   if(raw!==''){const selected=voices[Number(raw)];if(selected)return selected;}
   return voices.find(v=>/premium|enhanced|natural|siri/i.test(v.name))||voices.find(v=>/en-US/i.test(v.lang))||voices[0]||null;
 }
 function deviceSpeech(text){
   if(!('speechSynthesis'in window)||!('SpeechSynthesisUtterance'in window)){toast('Read aloud is not supported on this device');setSpeechButton(false);return;}
-  const utterance=new SpeechSynthesisUtterance(text),vibe=VOICE_VIBES[$('#voiceVibe')?.value]||VOICE_VIBES.smooth;
+  const utterance=new SpeechSynthesisUtterance(text),vibe=VOICE_VIBES[$('#voiceVibe')?.value]||VOICE_VIBES.warm;
   utterance.lang='en-US';utterance.rate=Number($('#voiceRate')?.value||vibe.rate);utterance.pitch=vibe.pitch;
   const voice=chosenVoice();if(voice)utterance.voice=voice;
   utterance.onend=()=>{if(activeUtterance===utterance){activeUtterance=null;setSpeechButton(false);}};
@@ -460,7 +488,7 @@ async function readReplyAloud(){
   const text=$('#replyText').textContent.trim();if(!text){toast('Generate a reply first');return;}
   stopSpeech();setSpeechButton(false,true);
   try{
-    const response=await fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,vibe:$('#voiceVibe')?.value||'smooth'})});
+    const response=await fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,vibe:$('#voiceVibe')?.value||'warm'})});
     if(!response.ok)throw new Error('AI voice unavailable');
     const blob=await response.blob();if(!blob.type.startsWith('audio/'))throw new Error('Invalid audio response');
     activeAudioUrl=URL.createObjectURL(blob);activeAudio=new Audio(activeAudioUrl);
@@ -504,7 +532,7 @@ const emojiChoices=$('#emojiChoices');if(emojiChoices){emojiChoices.innerHTML=EM
 $('#emojiToggle').onclick=()=>{const panel=$('#emojiPanel');panel.classList.toggle('hidden');$('#emojiToggle').setAttribute('aria-expanded',String(!panel.classList.contains('hidden')));};
 $('#voiceToggle').onclick=()=>{const panel=$('#voicePanel');panel.classList.toggle('hidden');$('#voiceToggle').setAttribute('aria-expanded',String(!panel.classList.contains('hidden')));populateVoices();};
 if('speechSynthesis'in window){populateVoices();window.speechSynthesis.onvoiceschanged=populateVoices;}
-$('#voiceVibe').onchange=()=>{const vibe=VOICE_VIBES[$('#voiceVibe').value];$('#voiceRate').value=vibe.rate;$('#voiceRateText').textContent=vibe.rate.toFixed(2)+'×';stopSpeech();};
+$('#voiceVibe').onchange=()=>{const vibe=VOICE_VIBES[$('#voiceVibe').value]||VOICE_VIBES.warm;$('#voiceRate').value=vibe.rate;$('#voiceRateText').textContent=vibe.rate.toFixed(2)+'×';stopSpeech();};
 $('#voiceRate').oninput=()=>{$('#voiceRateText').textContent=Number($('#voiceRate').value).toFixed(2)+'×';stopSpeech();};
 $$('[data-tweak]').forEach(button=>button.onclick=()=>{const preset=TWEAK_PRESETS[button.dataset.tweak];if(preset)refineReply(button.dataset.tweak,preset.instruction,preset.label);});
 $('#applyTweak').onclick=()=>{const instruction=$('#tweakInput').value.trim();if(!instruction){toast('Tell SHIN what to change');$('#tweakInput').focus();return;}refineReply('custom',instruction,'Custom tweak');};
