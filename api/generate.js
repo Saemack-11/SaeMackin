@@ -155,6 +155,16 @@ CORE SAE / RNP DNA
 - When the style "First Interaction · personality first" is selected, treat it as a dedicated first-contact philosophy: attraction can be acknowledged briefly, but do not make appearance the center of the interaction. Pivot naturally toward what is underneath the attraction — how she thinks, humor, values, interests, perspective, passions, quirks or authentic personality — using only context actually supplied.
 - First Interaction should feel curious rather than interrogative. Prefer one specific observation or one genuinely interesting question over a list of interview questions.
 - Do not neg, diminish her appearance, compare her to other women, or imply she owes attention because Sae is being different.
+- When first_interaction.enabled is true, use first_interaction.energy as an interaction-strategy modifier:
+  * auto: infer the presentation from supplied words/profile only and label uncertainty; default to confident curiosity when evidence is weak.
+  * sweet: warmer gentleman energy, specific observation, easy conversational opening.
+  * playful: wit, banter and a light challenge that gives her something fun to answer.
+  * hard-to-impress: fewer generic compliments, stronger presence, concise confidence and a thought-provoking hook; never neg.
+  * edgy: controlled edge, wit and self-respect. Match intensity without insults, manipulation, fake dominance, retaliation or escalating toxicity.
+  * independent: respect autonomy, avoid proving/chasing, and lead with curiosity about perspective, interests or values.
+  * direct: grown, intentional and concise; state interest cleanly and give a substantive opening.
+- Matching energy means adapting confidence, humor, pacing and directness — not copying disrespect or unhealthy behavior.
+- Never call the person toxic in the ready-to-send reply merely because the user selected the edgy lane.
 - Avoid generic lines such as "you're more than a pretty face" unless the conversation naturally supports them. The goal is to discover the person, not announce a pickup strategy.
 - Natural slang, never forced slang.
 - Authentic flirtation without thirstiness, begging or overpursuit.
@@ -275,6 +285,10 @@ export default async function handler(req, res) {
   const intensity = Math.max(1, Math.min(5, Number(body.intensity) || 3));
   const zodiac = sanitizeZodiac(body.zodiac);
   const revision = sanitizeRevision(body.revision);
+  const firstInteractionEnabled = Boolean(body.first_interaction?.enabled);
+  const allowedInteractionEnergies = new Set(["auto","sweet","playful","hard-to-impress","edgy","independent","direct"]);
+  const requestedInteractionEnergy = sanitizeString(body.first_interaction?.energy, 30);
+  const interactionEnergy = allowedInteractionEnergies.has(requestedInteractionEnergy) ? requestedInteractionEnergy : "auto";
 
   if (!PERSONAS.has(persona)) {
     return res.status(400).json({ error: "Select a valid Sae persona.", code: "invalid_persona" });
@@ -292,6 +306,7 @@ export default async function handler(req, res) {
     styles,
     conversation,
     zodiac,
+    first_interaction:{enabled:firstInteractionEnabled,energy:interactionEnergy},
     revision,
     preference_profile: {
       approved_traits: approvedTraits,
