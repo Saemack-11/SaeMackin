@@ -9,7 +9,7 @@
   <title>SaeMackin101</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="assets/icon-180.png">
-  <link rel="stylesheet" href="styles.css?v=45">
+  <link rel="stylesheet" href="styles.css?v=46">
 </head>
 <body>
 <div class="ambient"></div>
@@ -50,6 +50,26 @@
           <label>Who is this?<select id="relationship"></select></label>
           <label>What happened?<select id="situation"></select></label>
           <label>What do you want?<select id="goal"></select></label>
+        </div>
+
+        <div id="firstInteractionEnergy" class="zodiacPanel hidden">
+          <div class="zodiacCopy">
+            <small>FIRST INTERACTION · ENERGY READ</small>
+            <strong>How are they presenting?</strong>
+            <span>SHIN Auto reads the profile/message. Override it when you already know the room.</span>
+          </div>
+          <label>Energy
+            <select id="interactionEnergy">
+              <option value="auto">🧠 SHIN Auto</option>
+              <option value="sweet">🌹 Sweet / receptive</option>
+              <option value="playful">😂 Playful / sarcastic</option>
+              <option value="hard-to-impress">🦂 Confident / hard to impress</option>
+              <option value="edgy">😈 Edgy / toxic-presenting</option>
+              <option value="independent">🕊 Independent / don't need anybody</option>
+              <option value="direct">🎯 Direct / grown</option>
+            </select>
+          </label>
+          <small>Match energy without disrespect, manipulation, fake dominance, or chasing.</small>
         </div>
 
         <div class="zodiacPanel" id="zodiacPanel">
@@ -175,7 +195,7 @@
   </nav>
   <div id="toast" class="toast"></div>
 </div>
-<script src="app.js?v=45"></script>
+<script src="app.js?v=46"></script>
 <script src="sae-screenshots.js?v=41"></script>
 </body>
 </html>
