@@ -39,6 +39,7 @@ const MORE_STYLES=['More confident','More assertive','More respectful','More vul
 const ALL_STYLES=[...QUICK_STYLES,...MORE_STYLES];
 const LEVELS=['Soft','Calm Sae','Confident Sae','Bold','Unfiltered Sae'];
 const FIRST_INTERACTION_STYLE='First Interaction · personality first';
+const INTERACTION_ENERGY_LABELS={auto:'SHIN Auto',sweet:'Sweet / receptive',playful:'Playful / sarcastic','hard-to-impress':'Confident / hard to impress',edgy:'Edgy / toxic-presenting',independent:"Independent / don't need anybody",direct:'Direct / grown'};
 const SIGNS=['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
 const TWEAK_PRESETS={
   retry:{label:'Instant retry',instruction:'Give me a genuinely fresh take with different wording and rhythm. Keep the same facts, goal, boundaries and overall selected energy.'},
@@ -87,6 +88,7 @@ const store={
   signUsage:safeParse('sm_sign_usage',{}),
   zodiacEnabled:localStorage.sm_zodiac_enabled==='true',
   targetSign:localStorage.sm_target_sign||'Gemini',
+  interactionEnergy:localStorage.sm_interaction_energy||'auto',
   last:null
 };
 
@@ -104,6 +106,8 @@ $('#firstInteractionMode').onclick=()=>{
   localStorage.sm_relationship='New interest';localStorage.sm_situation='First message';localStorage.sm_goal='Build attraction';
   localStorage.sm_persona=store.persona;localStorage.sm_styles=JSON.stringify([...store.styles]);
   renderPersonas();renderMode();renderChips();
+  $('#firstInteractionEnergy').classList.remove('hidden');
+  $('#interactionEnergy').value=store.interactionEnergy;
   $('#message').placeholder='Drop her message, bio, profile details, or what caught your attention beyond her looks...';
   $('#message').focus();
   toast('First Interaction loaded · personality first');
@@ -138,6 +142,8 @@ fillGrouped($('#relationship'),REL_GROUPS);fillGrouped($('#situation'),SITUATION
 restoreSelect($('#relationship'),'sm_relationship','Dating');
 restoreSelect($('#situation'),'sm_situation','Something else / let the conversation explain it');
 restoreSelect($('#goal'),'sm_goal','Let them feel heard');
+$('#interactionEnergy').value=store.interactionEnergy;
+$('#interactionEnergy').onchange=e=>{store.interactionEnergy=e.target.value;localStorage.sm_interaction_energy=store.interactionEnergy;toast('First Interaction · '+INTERACTION_ENERGY_LABELS[store.interactionEnergy]);};
 [['#relationship','sm_relationship'],['#situation','sm_situation'],['#goal','sm_goal']].forEach(([id,key])=>$(id).onchange=e=>localStorage.setItem(key,e.target.value));
 
 function renderChipSet(target,styles){
@@ -403,6 +409,7 @@ function generationPayload(text,revision){
     styles:[...store.styles],
     conversation:text,
     zodiac:{enabled:store.zodiacEnabled,self_sign:'Scorpio',target_sign:store.zodiacEnabled?store.targetSign:''},
+    first_interaction:{enabled:store.styles.has(FIRST_INTERACTION_STYLE),energy:store.styles.has(FIRST_INTERACTION_STYLE)?store.interactionEnergy:'auto'},
     preference_profile:getPreferenceProfile(),
     ...(revision?{revision}: {})
   };
@@ -568,6 +575,7 @@ $('#resetBtn').onclick=()=>{
   $('#intensity').value=3;$('#intensityText').textContent=LEVELS[2];localStorage.sm_intensity='3';
   store.styles.clear();localStorage.sm_styles='[]';store.zodiacEnabled=false;localStorage.sm_zodiac_enabled='false';
   localStorage.sm_relationship='Dating';localStorage.sm_situation='Something else / let the conversation explain it';localStorage.sm_goal='Let them feel heard';
+  $('#firstInteractionEnergy').classList.add('hidden');store.interactionEnergy='auto';localStorage.sm_interaction_energy='auto';
   renderChips();renderMode();renderZodiac();toast('Studio reset');
 };
 
