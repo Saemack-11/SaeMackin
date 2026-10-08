@@ -243,6 +243,7 @@ OUTPUT RULES
 - "Authentic" is the closest match to the selected controls and Sae voice.
 - "Turned up" increases personality and boldness while remaining respectful, consent-aware and appropriate to the room.
 - Analyze only what the supplied conversation supports.
+- user_context is the user's own explanation, preferences, and desired reply direction, NOT a message from the other person. Honor it where compatible with the conversation and safety. Never quote it as if the other person said it.
 - The room read should be useful but skeptical: distinguish observation from interpretation.
 - Keep all outputs in the user's language.
 - Do not expose hidden chain-of-thought. reasoning_summary should be a concise, user-facing explanation of the communication strategy, not private reasoning.
@@ -280,6 +281,7 @@ export default async function handler(req, res) {
   const goal = sanitizeString(body.goal, 160);
   const styles = sanitizeStringArray(body.styles, 40, 90);
   const conversation = sanitizeString(body.conversation, MAX_CONVERSATION_CHARS);
+  const userContext = sanitizeString(body.user_context, 2000);
   const approvedTraits = sanitizeStringArray(body.preference_profile?.approved_traits, 20, 140);
   const rejectedTraits = sanitizeStringArray(body.preference_profile?.rejected_traits, 20, 140);
   const intensity = Math.max(1, Math.min(5, Number(body.intensity) || 3));
@@ -305,6 +307,7 @@ export default async function handler(req, res) {
     intensity,
     styles,
     conversation,
+    user_context: userContext,
     zodiac,
     first_interaction:{enabled:firstInteractionEnabled,energy:interactionEnergy},
     revision,
