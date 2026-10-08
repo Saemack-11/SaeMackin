@@ -104,9 +104,10 @@
 
       <div class="card">
         <div class="cardHead"><div><p class="kicker">STEP 3</p><h3>Drop the conversation</h3></div><button id="pasteBtn" class="text">Paste</button></div>
-        <textarea id="message" placeholder="Paste their message, the whole conversation, your draft, or explain what happened..."></textarea>
-        <button id="analyzeBtn" class="gold full">Review speakers & craft reply <span>✦</span></button>
-        <section id="speakerReview" class="speakerReview hidden" aria-label="Confirm conversation speakers"><h3>Who said what? 🗣️</h3><p class="muted">Check each speaker before SHIN writes your reply. Unknown speakers must be corrected.</p><div id="speakerTurns"></div><p id="speakerWarning" role="status"></p><button type="button" id="addSpeakerTurn" class="text">+ Add message</button><div class="speakerActions"><button type="button" id="cancelSpeakerReview" class="text">Cancel</button><button type="button" id="confirmSpeakers" class="gold" disabled>Confirm & generate ✦</button></div></section>
+        <textarea id="message" placeholder="Paste what they sent you. SHIN treats all pasted text as their message."></textarea>
+        <label for="replyContext" class="contextLabel">Your context / preferences (optional)</label><textarea id="replyContext" rows="3" maxlength="2000" placeholder="What should SHIN understand? How do you want to respond? Any boundaries, tone, or details to include?"></textarea>
+        <button id="analyzeBtn" class="gold full">Read the room & craft reply <span>✦</span></button>
+        <section id="speakerReview" class="speakerReview hidden" aria-label="Confirm conversation speakers"><h3>Who said what? 🗣️</h3><p class="muted">For screenshots only: correct who said what before SHIN writes your reply.</p><div id="speakerTurns"></div><p id="speakerWarning" role="status"></p><button type="button" id="addSpeakerTurn" class="text">+ Add message</button><div class="speakerActions"><button type="button" id="cancelSpeakerReview" class="text">Cancel</button><button type="button" id="confirmSpeakers" class="gold" disabled>Confirm & generate ✦</button></div></section>
         <p class="privacy">Private by default. Saved Playbook data stays on this device. Zodiac is treated as a vibe lens, not a factual personality diagnosis.</p>
       </div>
     </section>
@@ -196,7 +197,7 @@
   </nav>
   <div id="toast" class="toast"></div>
 </div>
-<script src="app.js?v=47"></script>
-<script src="sae-screenshots.js?v=41"></script>
+<script src="app.js?v=48"></script>
+<script src="sae-screenshots.js?v=48"></script>
 </body>
 </html>
