@@ -408,6 +408,7 @@ function generationPayload(text,revision){
     intensity:+$('#intensity').value,
     styles:[...store.styles],
     conversation:text,
+    user_context:$('#replyContext').value.trim().slice(0,2000),
     zodiac:{enabled:store.zodiacEnabled,self_sign:'Scorpio',target_sign:store.zodiacEnabled?store.targetSign:''},
     first_interaction:{enabled:store.styles.has(FIRST_INTERACTION_STYLE),energy:store.styles.has(FIRST_INTERACTION_STYLE)?store.interactionEnergy:'auto'},
     preference_profile:getPreferenceProfile(),
@@ -455,11 +456,10 @@ function updateSpeakerReady(){
   $('#confirmSpeakers').disabled=!valid;
   $('#speakerWarning').textContent=valid?'Ready to confirm. Your labels override automatic detection.':'Assign every speaker and fill every message before generating.';
 }
-function beginSpeakerReview(){
-  const raw=$('#message').value.trim();
-  if(!raw){toast('Drop the message first');$('#message').focus();return;}
+function beginSpeakerReview(raw){
   speakerReview=parseSpeakerTurns(raw);renderSpeakerReview();
 }
+window.startScreenshotSpeakerReview=beginSpeakerReview;
 async function confirmAndGenerate(){
   if(!speakerReview?.length||speakerReview.some(x=>x.speaker==='unknown'||!x.text.trim()))return;
   const text=speakerReview.map(x=>(x.speaker==='me'?'ME (SAE): ':'HER: ')+x.text.trim()).join('\n');
@@ -570,7 +570,7 @@ async function refineReply(mode,instruction,label){
   }finally{setTweakLoading(false);}
 }
 
-$('#analyzeBtn').onclick=beginSpeakerReview;
+$('#analyzeBtn').onclick=()=>{const raw=$('#message').value.trim();if(!raw){toast('Paste their message first');$('#message').focus();return;}generateConfirmed('THEIR MESSAGE:\n'+raw);};
 $('#confirmSpeakers').onclick=confirmAndGenerate;
 $('#cancelSpeakerReview').onclick=()=>$('#speakerReview').classList.add('hidden');
 $('#addSpeakerTurn').onclick=()=>{speakerReview.push({id:speakerReview.length+1,speaker:'unknown',text:''});renderSpeakerReview();};
