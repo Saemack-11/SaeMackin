@@ -425,9 +425,48 @@ async function requestGeneration(text,revision){
   return data;
 }
 
-async function analyze(){
-  const text=$('#message').value.trim();
-  if(!text){toast('Drop the message first');$('#message').focus();return;}
+// Speaker labels are always user-confirmed before generation.
+let speakerReview=null;
+function parseSpeakerTurns(raw){
+  const lines=raw.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+  return lines.map((line,i)=>{
+    const match=line.match(/^(me|myself|sae|you|her|she|them|unknown)\s*[:：-]\s*(.*)$/i);
+    const label=match?.[1]?.toLowerCase();
+    return {id:i+1,speaker:['me','myself','sae','you'].includes(label)?'me':['her','she','them'].includes(label)?'her':'unknown',text:match?match[2]:line};
+  });
+}
+function renderSpeakerReview(){
+  const panel=$('#speakerReview'),list=$('#speakerTurns');
+  panel.classList.remove('hidden');
+  list.replaceChildren();
+  speakerReview.forEach((turn,i)=>{
+    const wrap=document.createElement('div');wrap.className='speakerTurn';
+    const heading=document.createElement('label');heading.textContent='Message '+(i+1)+' · Speaker';
+    const select=document.createElement('select');select.setAttribute('aria-label','Speaker for message '+(i+1));
+    [['unknown','❔ Unknown'],['me','🟦 Me (Sae)'],['her','🩷 Her']].forEach(([value,label])=>{const option=document.createElement('option');option.value=value;option.textContent=label;select.append(option);});
+    select.value=turn.speaker;select.onchange=()=>{turn.speaker=select.value;updateSpeakerReady();};
+    const textarea=document.createElement('textarea');textarea.value=turn.text;textarea.rows=2;textarea.setAttribute('aria-label','Text for message '+(i+1));textarea.oninput=()=>{turn.text=textarea.value;updateSpeakerReady();};
+    wrap.append(heading,select,textarea);list.append(wrap);
+  });
+  updateSpeakerReady();panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function updateSpeakerReady(){
+  const valid=speakerReview?.length&&speakerReview.every(x=>x.speaker!=='unknown'&&x.text.trim());
+  $('#confirmSpeakers').disabled=!valid;
+  $('#speakerWarning').textContent=valid?'Ready to confirm. Your labels override automatic detection.':'Assign every speaker and fill every message before generating.';
+}
+function beginSpeakerReview(){
+  const raw=$('#message').value.trim();
+  if(!raw){toast('Drop the message first');$('#message').focus();return;}
+  speakerReview=parseSpeakerTurns(raw);renderSpeakerReview();
+}
+async function confirmAndGenerate(){
+  if(!speakerReview?.length||speakerReview.some(x=>x.speaker==='unknown'||!x.text.trim()))return;
+  const text=speakerReview.map(x=>(x.speaker==='me'?'ME (SAE): ':'HER: ')+x.text.trim()).join('\n');
+  $('#speakerReview').classList.add('hidden');
+  await generateConfirmed(text);
+}
+async function generateConfirmed(text){
   const button=$('#analyzeBtn'),original=button.innerHTML;
   button.disabled=true;button.innerHTML='SHIN is reading the room <span class="thinkingDots">•••</span>';
   try{
@@ -531,8 +570,11 @@ async function refineReply(mode,instruction,label){
   }finally{setTweakLoading(false);}
 }
 
-$('#analyzeBtn').onclick=analyze;
-$('#pasteBtn').onclick=async()=>{try{$('#message').value=await navigator.clipboard.readText();toast('Pasted');}catch{toast('Press and hold inside the box to paste');}};
+$('#analyzeBtn').onclick=beginSpeakerReview;
+$('#confirmSpeakers').onclick=confirmAndGenerate;
+$('#cancelSpeakerReview').onclick=()=>$('#speakerReview').classList.add('hidden');
+$('#addSpeakerTurn').onclick=()=>{speakerReview.push({id:speakerReview.length+1,speaker:'unknown',text:''});renderSpeakerReview();};
+$('#pasteBtn').onclick=async()=>{try{$('#message').value=await navigator.clipboard.readText();$('#speakerReview').classList.add('hidden');toast('Pasted');}catch{toast('Press and hold inside the box to paste');}};
 $('#copyReply').onclick=async()=>{await navigator.clipboard.writeText($('#replyText').textContent);toast('Reply copied');};
 $('#speakReply').onclick=readReplyAloud;
 const emojiChoices=$('#emojiChoices');if(emojiChoices){emojiChoices.innerHTML=EMOJI_CHOICES.map(e=>'<button type="button" aria-label="Add '+e+'">'+e+'</button>').join('');emojiChoices.querySelectorAll('button').forEach((b,i)=>b.onclick=()=>{const reply=$('#replyText');reply.textContent=(reply.textContent.trimEnd()+' '+EMOJI_CHOICES[i]).trim();if(store.last)store.last.reply=reply.textContent;toast('Emoji added');});}
