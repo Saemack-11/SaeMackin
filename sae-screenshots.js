@@ -119,10 +119,10 @@
         button.disabled=true;button.innerHTML='SHIN is reading screenshots <span class="thinkingDots">•••</span>';
         const transcript=await readScreenshots();
         const note=(document.getElementById('saeShotNote')?.value||'').trim();
-        const evidence=[typed?`USER CONTEXT / DRAFT:\n${typed}`:'',note?`SCREENSHOT NOTE:\n${note}`:'',`SCREENSHOT CONVERSATION EVIDENCE:\n${transcript}`].filter(Boolean).join('\n\n');
-        message.value=evidence;
+        if(typed){document.getElementById('replyContext').value=[document.getElementById('replyContext').value.trim(),typed].filter(Boolean).join('\n\n').slice(0,2000);message.value='';}
+        if(note){document.getElementById('replyContext').value=[document.getElementById('replyContext').value.trim(),note].filter(Boolean).join('\n\n').slice(0,2000);}
         button.disabled=false;button.innerHTML=buttonHTML;
-        await original.call(this,event);
+        window.startScreenshotSpeakerReview(transcript);
       }catch(error){
         console.warn('Screenshot reading failed',error);toast(error.message||'Could not read screenshots');status(error.message||'Could not read screenshots');
       }finally{
