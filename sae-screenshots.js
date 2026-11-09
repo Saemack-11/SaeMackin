@@ -99,6 +99,7 @@
       </div>
       <div class="saeShotActions"><label class="saeShotUpload">＋ Add screenshots<input id="saeShotInput" type="file" accept="image/*" multiple></label><button id="saeShotClear" class="saeShotClear" type="button">Clear images</button><button id="saeNewExchange" class="saeShotClear" type="button">New exchange</button><span id="saeShotCount" class="saeShotCount">0/${MAX_IMAGES} attached</span></div>
       <div class="saeShotIntents" aria-label="Screenshot action"><button type="button" data-shot-action="reply" class="active">Reply</button><button type="button" data-shot-action="decode">Decode</button><button type="button" data-shot-action="remix">Remix</button></div>
+      <textarea id="saeRemixDraft" class="saeRemixDraft hidden" maxlength="2000" placeholder="Optional: paste the draft you want remixed. Leave blank to use your latest visible message."></textarea>
       <div id="saeShotThumbs" class="saeShotThumbs"></div>
       <div id="saeShotStatus" class="saeShotStatus">No screenshots attached. You can still paste or type the conversation.</div>`;
     message.insertAdjacentElement('afterend',panel);
@@ -106,7 +107,7 @@
     document.getElementById('saeShotClear').onclick=()=>{images=[];transcriptCache='';transcriptKey='';renderThumbs();status('Screenshots cleared.');};
     priorExchange=sessionStorage.getItem('sm_exchange_transcript')||'';
     document.getElementById('saeNewExchange').onclick=()=>{priorExchange='';sessionStorage.removeItem('sm_exchange_transcript');status('New exchange started.');toast('Conversation context cleared');};
-    document.querySelectorAll('[data-shot-action]').forEach(button=>button.onclick=()=>{screenshotAction=button.dataset.shotAction;document.querySelectorAll('[data-shot-action]').forEach(item=>item.classList.toggle('active',item===button));});
+    document.querySelectorAll('[data-shot-action]').forEach(button=>button.onclick=()=>{screenshotAction=button.dataset.shotAction;document.querySelectorAll('[data-shot-action]').forEach(item=>item.classList.toggle('active',item===button));document.getElementById('saeRemixDraft').classList.toggle('hidden',screenshotAction!=='remix');});
     document.getElementById('saeMySide').onchange=()=>{transcriptCache='';transcriptKey='';};
     document.getElementById('saeShotNote').oninput=()=>{transcriptCache='';transcriptKey='';};
   }
@@ -130,7 +131,7 @@
         button.disabled=false;button.innerHTML=buttonHTML;
         const combined=priorExchange?`${priorExchange}\n\nFOLLOW-UP SCREENSHOT:\n${transcript}`:transcript;
         priorExchange=combined;sessionStorage.setItem('sm_exchange_transcript',combined);
-        await window.generateScreenshotExchange(combined,screenshotAction,(document.getElementById('saeShotNote')?.value||'').trim());
+        await window.generateScreenshotExchange(combined,screenshotAction,(document.getElementById('saeShotNote')?.value||'').trim(),(document.getElementById('saeRemixDraft')?.value||'').trim());
       }catch(error){
         console.warn('Screenshot reading failed',error);toast(error.message||'Could not read screenshots');status(error.message||'Could not read screenshots');
       }finally{
