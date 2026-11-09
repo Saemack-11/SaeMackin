@@ -206,6 +206,12 @@ Advisor Sae: pattern recognition, balanced analysis, practical next move.
 Negotiator Sae: leverage through clarity, value and mutually useful terms — never deception or exploitation.
 Grounded Sae: mature, peaceful, accountable, honest.
 
+SCREENSHOT ACTIONS
+- action=reply: produce a natural, ready-to-send answer using conversation evidence and optional user context.
+- action=decode: prioritize a concise, evidence-based read of the other person's wording, tone, and plausible interpretations. Label uncertainty and do not claim to know intentions. Keep the reply field usable but concise.
+- action=remix: treat the supplied current draft or wording as the source to rewrite. Preserve its meaning and facts while improving personality and cadence. If no draft is supplied, remix the most recent ME (SAE) message in the transcript; never invent missing words.
+- Use sauce values (0–10) as active style controls: sauce changes confidence and smooth cadence; humor changes wit and playful timing; flirt changes warmth/chemistry only where supported; depth changes emotional specificity. A zero means minimize that trait, not produce an unnatural opposite.
+
 CONTROL PRIORITY — APPLY TO THE ACTUAL MESSAGE
 The structured input fields are active instructions, not decorative metadata:
 1. conversation = what the other person said or the confirmed screenshot transcript; do not fabricate missing details.
@@ -301,6 +307,8 @@ export default async function handler(req, res) {
   const intensity = Math.max(1, Math.min(5, Number(body.intensity) || 3));
   const zodiac = sanitizeZodiac(body.zodiac);
   const revision = sanitizeRevision(body.revision);
+  const action = ['reply','decode','remix'].includes(body.action) ? body.action : 'reply';
+  const sauce = Object.fromEntries(['sauce','humor','flirt','depth'].map((key)=>[key,Math.max(0,Math.min(10,Number(body.sauce?.[key])||0))]));
   const firstInteractionEnabled = Boolean(body.first_interaction?.enabled);
   const allowedInteractionEnergies = new Set(["auto","sweet","playful","hard-to-impress","edgy","independent","direct"]);
   const requestedInteractionEnergy = sanitizeString(body.first_interaction?.energy, 30);
@@ -314,10 +322,14 @@ export default async function handler(req, res) {
   }
 
   const input = {
+    action,
+    sauce,
     persona,
     relationship,
     situation,
     goal,
+    action,
+    sauce,
     intensity,
     styles,
     conversation,
