@@ -89,6 +89,8 @@ test("screenshot intake and result screen use the approved compact controls", as
   assert.match(screenshot, /My messages are on<select/);
   assert.doesNotMatch(screenshot, /Let SHIN infer/);
   assert.match(screenshot, /generateScreenshotExchange/);
+  assert.match(screenshot, /\.slice\(-11000\)/);
+  assert.match(screenshot, /images=\[\];transcriptCache=/);
   for (const control of ["sauce", "humor", "flirt", "depth"]) assert.match(html, new RegExp(`data-sauce="${control}"`));
   assert.match(html, /id="sauceMixer" class="sauceMixer hidden"/);
   assert.match(html, /id="remixCurrent"/);
