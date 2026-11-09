@@ -33,6 +33,16 @@
     </section>
 
     <section class="view" data-view="studio">
+      <div class="title"><div><p class="kicker">SHIN INTELLIGENCE</p><h2>What’s the exchange?</h2></div></div>
+      <div class="card">
+        <div class="cardHead"><div><p class="kicker">SCREENSHOT INTELLIGENCE</p><h3>Add the conversation</h3></div><button id="pasteBtn" class="text">Paste</button></div>
+        <textarea id="message" placeholder="Paste the conversation, or attach screenshots below."></textarea>
+        <label for="replyContext" class="contextLabel">Your context / preferences (optional)</label><textarea id="replyContext" rows="3" maxlength="2000" placeholder="What should SHIN understand? How do you want to respond? Any boundaries, tone, or details to include?"></textarea>
+        <button id="analyzeBtn" class="gold full">Read the room & craft reply <span>✦</span></button>
+        <section id="speakerReview" class="speakerReview hidden" aria-label="Confirm conversation speakers"><h3>Who said what? 🗣️</h3><p class="muted">For screenshots only: correct who said what before SHIN writes your reply.</p><div id="speakerTurns"></div><p id="speakerWarning" role="status"></p><button type="button" id="addSpeakerTurn" class="text">+ Add message</button><div class="speakerActions"><button type="button" id="cancelSpeakerReview" class="text">Cancel</button><button type="button" id="confirmSpeakers" class="gold" disabled>Confirm & generate ✦</button></div></section>
+        <p class="privacy">Private by default. Saved Playbook data stays on this device. Zodiac is treated as a vibe lens, not a factual personality diagnosis.</p>
+      </div>
+      <details class="advancedStudio"><summary>Personalize this response · First Interaction and style controls</summary>
       <div class="title"><div><p class="kicker">STEP 1</p><h2>Who’s stepping forward?</h2></div><button id="randomPersona" class="mini">Surprise me</button></div>
       <div class="entryModes" aria-label="Studio mode">
           <button id="firstInteractionMode" class="entryMode" type="button"><span>✨</span><div><strong>First Interaction</strong><small>Attraction is obvious. Discover the person underneath it.</small></div></button>
@@ -102,14 +112,8 @@
         </details>
       </div>
 
-      <div class="card">
-        <div class="cardHead"><div><p class="kicker">STEP 3</p><h3>Drop the conversation</h3></div><button id="pasteBtn" class="text">Paste</button></div>
-        <textarea id="message" placeholder="Paste what they sent you. SHIN treats all pasted text as their message."></textarea>
-        <label for="replyContext" class="contextLabel">Your context / preferences (optional)</label><textarea id="replyContext" rows="3" maxlength="2000" placeholder="What should SHIN understand? How do you want to respond? Any boundaries, tone, or details to include?"></textarea>
-        <button id="analyzeBtn" class="gold full">Read the room & craft reply <span>✦</span></button>
-        <section id="speakerReview" class="speakerReview hidden" aria-label="Confirm conversation speakers"><h3>Who said what? 🗣️</h3><p class="muted">For screenshots only: correct who said what before SHIN writes your reply.</p><div id="speakerTurns"></div><p id="speakerWarning" role="status"></p><button type="button" id="addSpeakerTurn" class="text">+ Add message</button><div class="speakerActions"><button type="button" id="cancelSpeakerReview" class="text">Cancel</button><button type="button" id="confirmSpeakers" class="gold" disabled>Confirm & generate ✦</button></div></section>
-        <p class="privacy">Private by default. Saved Playbook data stays on this device. Zodiac is treated as a vibe lens, not a factual personality diagnosis.</p>
-      </div>
+
+      </details>
     </section>
 
     <section class="view" data-view="results">
