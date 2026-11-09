@@ -471,9 +471,10 @@ async function confirmAndGenerate(){
   $('#speakerReview').classList.add('hidden');
   await generateConfirmed(text);
 }
-window.generateScreenshotExchange=async function(text,action,context=''){
+window.generateScreenshotExchange=async function(text,action,context='',draft=''){
   store.action=['reply','decode','remix'].includes(action)?action:'reply';
   if(context)$('#replyContext').value=[$('#replyContext').value.trim(),context].filter(Boolean).join('\n\n').slice(0,2000);
+  if(action==='remix'&&draft)text+=`\n\nSAE DRAFT TO REMIX (preserve meaning):\n${draft}`;
   await generateConfirmed(text);
 };
 async function generateConfirmed(text){
@@ -586,6 +587,7 @@ $('#cancelSpeakerReview').onclick=()=>$('#speakerReview').classList.add('hidden'
 $('#addSpeakerTurn').onclick=()=>{speakerReview.push({id:speakerReview.length+1,speaker:'unknown',text:''});renderSpeakerReview();};
 $('#pasteBtn').onclick=async()=>{try{$('#message').value=await navigator.clipboard.readText();$('#speakerReview').classList.add('hidden');toast('Pasted');}catch{toast('Press and hold inside the box to paste');}};
 $('#copyReply').onclick=async()=>{try{await navigator.clipboard.writeText($('#replyText').textContent);toast('Reply copied');}catch{toast('Copy is unavailable here');}};
+$('#remixCurrent').onclick=()=>{store.action='remix';refineReply('custom','Remix this current draft with more personality, natural cadence, and Sae voice while preserving its meaning, facts, intent, and boundaries.','Remix');};
 $$('[data-sauce]').forEach(input=>input.oninput=()=>{const output=input.parentElement.querySelector('output');if(output)output.textContent=input.value;localStorage['sm_sauce_'+input.dataset.sauce]=input.value;});
 $$('[data-sauce]').forEach(input=>{const saved=localStorage['sm_sauce_'+input.dataset.sauce];if(saved!==null){input.value=saved;input.parentElement.querySelector('output').textContent=saved;}});
 $('#applySauce').onclick=()=>{const values=Object.fromEntries($$('[data-sauce]').map(input=>[input.dataset.sauce,+input.value]));const instruction=`Regenerate the same response using these 0–10 style levels: smooth talk/sauce ${values.sauce}, millennial humor ${values.humor}, flirtation ${values.flirt}, emotional depth ${values.depth}. Make each level visibly affect word choice, rhythm, humor, confidence, flirtation, and emotional expression. Keep facts, meaning, boundaries, and relationship context intact.`;refineReply('custom',instruction,'Sauce mix');};
