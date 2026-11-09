@@ -66,6 +66,19 @@ function sanitizeZodiac(value) {
   };
 }
 
+export function sanitizeAction(value) {
+  const action = sanitizeString(value, 20).toLowerCase();
+  return ["reply", "decode", "remix"].includes(action) ? action : "reply";
+}
+
+export function sanitizeSauce(value) {
+  const source = value && typeof value === "object" ? value : {};
+  return Object.fromEntries(["sauce", "humor", "flirt", "depth"].map((key) => {
+    const number = Number(source[key]);
+    return [key, Number.isFinite(number) ? Math.max(0, Math.min(10, number)) : 0];
+  }));
+}
+
 export function sanitizeRevision(value) {
   if (!value || typeof value !== "object") {
     return { requested: false, mode: "", instruction: "", current_reply: "" };
@@ -307,8 +320,8 @@ export default async function handler(req, res) {
   const intensity = Math.max(1, Math.min(5, Number(body.intensity) || 3));
   const zodiac = sanitizeZodiac(body.zodiac);
   const revision = sanitizeRevision(body.revision);
-  const action = ['reply','decode','remix'].includes(body.action) ? body.action : 'reply';
-  const sauce = Object.fromEntries(['sauce','humor','flirt','depth'].map((key)=>[key,Math.max(0,Math.min(10,Number(body.sauce?.[key])||0))]));
+  const action = sanitizeAction(body.action);
+  const sauce = sanitizeSauce(body.sauce);
   const firstInteractionEnabled = Boolean(body.first_interaction?.enabled);
   const allowedInteractionEnergies = new Set(["auto","sweet","playful","hard-to-impress","edgy","independent","direct"]);
   const requestedInteractionEnergy = sanitizeString(body.first_interaction?.energy, 30);
