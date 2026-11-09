@@ -4,6 +4,11 @@ const MAX_IMAGES = 4;
 const MAX_DATA_URL_CHARS = 1_250_000;
 const MAX_TOTAL_IMAGE_CHARS = 3_800_000;
 
+export function normalizeMessageSide(value) {
+  const side = typeof value === "string" ? value.trim().toLowerCase() : "";
+  return side === "left" || side === "right" ? side : "right";
+}
+
 function sanitizeString(value, max = 1000) {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
 }
@@ -73,7 +78,7 @@ export default async function handler(req, res) {
   const body = req.body || {};
   const images = sanitizeImages(body.images);
   const sideRaw = sanitizeString(body.my_side, 10).toLowerCase();
-  const mySide = ["left", "right"].includes(sideRaw) ? sideRaw : "right";
+  const mySide = normalizeMessageSide(sideRaw);
   const note = sanitizeString(body.context_note, 700);
 
   if (!images.length) {
