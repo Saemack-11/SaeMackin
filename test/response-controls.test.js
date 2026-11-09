@@ -92,6 +92,8 @@ test("screenshot intake and result screen use the approved compact controls", as
   for (const control of ["sauce", "humor", "flirt", "depth"]) assert.match(html, new RegExp(`data-sauce="${control}"`));
   assert.match(html, /id="sauceMixer" class="sauceMixer hidden"/);
   assert.match(html, /id="remixCurrent"/);
+  assert.match(html, /class="advancedStudio"/);
+  assert.ok(html.indexOf("id=\"message\"") < html.indexOf("class=\"advancedStudio\""), "screenshot intake should precede advanced controls");
   assert.match(app, /window.generateScreenshotExchange/);
   assert.match(worker, /saemackin101-shin-v4\.5-screenshot-sauce/);
 });
