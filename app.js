@@ -89,6 +89,7 @@ const store={
   zodiacEnabled:localStorage.sm_zodiac_enabled==='true',
   targetSign:localStorage.sm_target_sign||'Gemini',
   interactionEnergy:localStorage.sm_interaction_energy||'auto',
+  action:'reply',
   last:null
 };
 
@@ -375,7 +376,8 @@ function applyResult(data,text,{kind='generation',tweakLabel=''}={}){
   store.generations++;store.usage[store.persona]=(store.usage[store.persona]||0)+1;
   if(store.zodiacEnabled)store.signUsage[store.targetSign]=(store.signUsage[store.targetSign]||0)+1;
   localStorage.sm_generations=store.generations;localStorage.sm_usage=JSON.stringify(store.usage);localStorage.sm_sign_usage=JSON.stringify(store.signUsage);
-  $('#resultTitle').textContent=`${store.persona} ${kind==='tweak'?'tweak':'response'} ready`;
+  $('#resultTitle').textContent=store.action==='decode'?'Conversation decode':store.action==='remix'?'Remix ready':`${store.persona} ${kind==='tweak'?'tweak':'response'} ready`;
+  $('#sauceMixer').classList.remove('hidden');
   $('#replyText').textContent=data.reply;
   $('#roomRead').innerHTML=[
     ['Their energy',data.room_read.their_energy],
@@ -400,7 +402,10 @@ function applyResult(data,text,{kind='generation',tweakLabel=''}={}){
 }
 
 function generationPayload(text,revision){
+  const sauce=Object.fromEntries($$('[data-sauce]').map(input=>[input.dataset.sauce,+input.value]));
   return{
+    action:store.action,
+    sauce,
     persona:store.persona,
     relationship:$('#relationship').value,
     situation:$('#situation').value,
@@ -466,6 +471,11 @@ async function confirmAndGenerate(){
   $('#speakerReview').classList.add('hidden');
   await generateConfirmed(text);
 }
+window.generateScreenshotExchange=async function(text,action,context=''){
+  store.action=['reply','decode','remix'].includes(action)?action:'reply';
+  if(context)$('#replyContext').value=[$('#replyContext').value.trim(),context].filter(Boolean).join('\n\n').slice(0,2000);
+  await generateConfirmed(text);
+};
 async function generateConfirmed(text){
   const button=$('#analyzeBtn'),original=button.innerHTML;
   button.disabled=true;button.innerHTML='SHIN is reading the room <span class="thinkingDots">•••</span>';
@@ -570,12 +580,15 @@ async function refineReply(mode,instruction,label){
   }finally{setTweakLoading(false);}
 }
 
-$('#analyzeBtn').onclick=()=>{const raw=$('#message').value.trim();if(!raw){toast('Paste their message first');$('#message').focus();return;}generateConfirmed('THEIR MESSAGE:\n'+raw);};
+$('#analyzeBtn').onclick=()=>{const raw=$('#message').value.trim();if(!raw){toast('Paste their message first');$('#message').focus();return;}store.action='reply';generateConfirmed('THEIR MESSAGE:\n'+raw);};
 $('#confirmSpeakers').onclick=confirmAndGenerate;
 $('#cancelSpeakerReview').onclick=()=>$('#speakerReview').classList.add('hidden');
 $('#addSpeakerTurn').onclick=()=>{speakerReview.push({id:speakerReview.length+1,speaker:'unknown',text:''});renderSpeakerReview();};
 $('#pasteBtn').onclick=async()=>{try{$('#message').value=await navigator.clipboard.readText();$('#speakerReview').classList.add('hidden');toast('Pasted');}catch{toast('Press and hold inside the box to paste');}};
-$('#copyReply').onclick=async()=>{await navigator.clipboard.writeText($('#replyText').textContent);toast('Reply copied');};
+$('#copyReply').onclick=async()=>{try{await navigator.clipboard.writeText($('#replyText').textContent);toast('Reply copied');}catch{toast('Copy is unavailable here');}};
+$$('[data-sauce]').forEach(input=>input.oninput=()=>{const output=input.parentElement.querySelector('output');if(output)output.textContent=input.value;localStorage['sm_sauce_'+input.dataset.sauce]=input.value;});
+$$('[data-sauce]').forEach(input=>{const saved=localStorage['sm_sauce_'+input.dataset.sauce];if(saved!==null){input.value=saved;input.parentElement.querySelector('output').textContent=saved;}});
+$('#applySauce').onclick=()=>{const values=Object.fromEntries($$('[data-sauce]').map(input=>[input.dataset.sauce,+input.value]));const instruction=`Regenerate the same response using these 0–10 style levels: smooth talk/sauce ${values.sauce}, millennial humor ${values.humor}, flirtation ${values.flirt}, emotional depth ${values.depth}. Make each level visibly affect word choice, rhythm, humor, confidence, flirtation, and emotional expression. Keep facts, meaning, boundaries, and relationship context intact.`;refineReply('custom',instruction,'Sauce mix');};
 $('#speakReply').onclick=readReplyAloud;
 const emojiChoices=$('#emojiChoices');if(emojiChoices){emojiChoices.innerHTML=EMOJI_CHOICES.map(e=>'<button type="button" aria-label="Add '+e+'">'+e+'</button>').join('');emojiChoices.querySelectorAll('button').forEach((b,i)=>b.onclick=()=>{const reply=$('#replyText');reply.textContent=(reply.textContent.trimEnd()+' '+EMOJI_CHOICES[i]).trim();if(store.last)store.last.reply=reply.textContent;toast('Emoji added');});}
 $('#emojiToggle').onclick=()=>{const panel=$('#emojiPanel');panel.classList.toggle('hidden');$('#emojiToggle').setAttribute('aria-expanded',String(!panel.classList.contains('hidden')));};
