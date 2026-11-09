@@ -129,9 +129,10 @@
         if(typed){document.getElementById('replyContext').value=[document.getElementById('replyContext').value.trim(),typed].filter(Boolean).join('\n\n').slice(0,2000);message.value='';}
         if(note){document.getElementById('replyContext').value=[document.getElementById('replyContext').value.trim(),note].filter(Boolean).join('\n\n').slice(0,2000);}
         button.disabled=false;button.innerHTML=buttonHTML;
-        const combined=priorExchange?`${priorExchange}\n\nFOLLOW-UP SCREENSHOT:\n${transcript}`:transcript;
+        const combined=(priorExchange?`${priorExchange}\n\nFOLLOW-UP SCREENSHOT:\n${transcript}`:transcript).slice(-11000);
         priorExchange=combined;sessionStorage.setItem('sm_exchange_transcript',combined);
         await window.generateScreenshotExchange(combined,screenshotAction,(document.getElementById('saeShotNote')?.value||'').trim(),(document.getElementById('saeRemixDraft')?.value||'').trim());
+        images=[];transcriptCache='';transcriptKey='';renderThumbs();status('Exchange saved. Add the next screenshots when the conversation continues.','ready');
       }catch(error){
         console.warn('Screenshot reading failed',error);toast(error.message||'Could not read screenshots');status(error.message||'Could not read screenshots');
       }finally{
