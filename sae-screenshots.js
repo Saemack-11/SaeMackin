@@ -2,10 +2,12 @@
   'use strict';
 
   const MAX_IMAGES=4;
+  let screenshotAction='reply';
   const MAX_FILE_BYTES=12*1024*1024;
   let images=[];
   let transcriptCache='';
   let transcriptKey='';
+  let priorExchange='';
 
   const css=`
     .saeShotPanel{margin:14px 0 16px;padding:14px;border:1px solid rgba(214,174,86,.32);border-radius:16px;background:linear-gradient(180deg,rgba(214,174,86,.07),rgba(255,255,255,.018));}
@@ -22,7 +24,7 @@
   function toast(message){if(typeof window.toast==='function')window.toast(message);else console.info(message);}
   function injectStyle(){if(document.getElementById('saeShotStyle'))return;const s=document.createElement('style');s.id='saeShotStyle';s.textContent=css;document.head.appendChild(s);}
   function status(message,kind=''){const el=document.getElementById('saeShotStatus');if(!el)return;el.textContent=message;el.className='saeShotStatus'+(kind?' '+kind:'');}
-  function fingerprint(){return images.map(x=>`${x.name}:${x.data.length}`).join('|')+'|'+(document.getElementById('saeMySide')?.value||'infer')+'|'+(document.getElementById('saeShotNote')?.value||'').trim();}
+  function fingerprint(){return images.map(x=>`${x.name}:${x.data.length}`).join('|')+'|'+(document.getElementById('saeMySide')?.value||'right')+'|'+(document.getElementById('saeShotNote')?.value||'').trim();}
 
   function renderThumbs(){
     const box=document.getElementById('saeShotThumbs'),count=document.getElementById('saeShotCount');
@@ -68,12 +70,12 @@
   async function readScreenshots(){
     const key=fingerprint();
     if(transcriptCache&&transcriptKey===key)return transcriptCache;
-    status('SHIN is reading the screenshots and checking who said what…','busy');
+    status('SHIN is reading the exchange in order…','busy');
     const response=await fetch('/api/read-screenshots',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         images:images.map(x=>x.data),
-        my_side:document.getElementById('saeMySide')?.value||'infer',
+        my_side:document.getElementById('saeMySide')?.value||'right',
         context_note:(document.getElementById('saeShotNote')?.value||'').trim()
       })
     });
@@ -90,17 +92,22 @@
     const message=document.getElementById('message');if(!message)return;
     const panel=document.createElement('div');panel.id='saeShotPanel';panel.className='saeShotPanel';
     panel.innerHTML=`
-      <div class="saeShotHead"><div><strong>📸 Conversation screenshots</strong><span>Attach up to 4 screenshots in conversation order. SHIN will turn them into editable evidence before SaeMackin reads the room.</span></div><span class="saeShotBadge">V4.1</span></div>
+      <div class="saeShotHead"><div><strong>📸 Add the conversation</strong><span>Upload up to 4 screenshots in order. Choose your message side; speaker labels are assigned automatically.</span></div><span class="saeShotBadge">V4.1</span></div>
       <div class="saeShotGrid">
-        <label>Which side is you?<select id="saeMySide"><option value="infer">Let SHIN infer / names visible</option><option value="right">My messages are on the RIGHT</option><option value="left">My messages are on the LEFT</option></select></label>
-        <label>Screenshot context note<textarea id="saeShotNote" maxlength="500" placeholder="Optional — e.g. This is Instagram. I’m the blue/right messages. Screenshot 2 continues screenshot 1."></textarea></label>
+        <label>My messages are on<select id="saeMySide"><option value="right">Right</option><option value="left">Left</option></select></label>
+        <label>Optional context<textarea id="saeShotNote" maxlength="500" placeholder="What sparked this, or what direction should the response take?"></textarea></label>
       </div>
-      <div class="saeShotActions"><label class="saeShotUpload">＋ Add screenshots<input id="saeShotInput" type="file" accept="image/*" multiple></label><button id="saeShotClear" class="saeShotClear" type="button">Clear images</button><span id="saeShotCount" class="saeShotCount">0/${MAX_IMAGES} attached</span></div>
+      <div class="saeShotActions"><label class="saeShotUpload">＋ Add screenshots<input id="saeShotInput" type="file" accept="image/*" multiple></label><button id="saeShotClear" class="saeShotClear" type="button">Clear images</button><button id="saeNewExchange" class="saeShotClear" type="button">New exchange</button><span id="saeShotCount" class="saeShotCount">0/${MAX_IMAGES} attached</span></div>
+      <div class="saeShotIntents" aria-label="Screenshot action"><button type="button" data-shot-action="reply" class="active">Reply</button><button type="button" data-shot-action="decode">Decode</button><button type="button" data-shot-action="remix">Remix</button></div>
+      <textarea id="saeRemixDraft" class="saeRemixDraft hidden" maxlength="2000" placeholder="Optional: paste the draft you want remixed. Leave blank to use your latest visible message."></textarea>
       <div id="saeShotThumbs" class="saeShotThumbs"></div>
       <div id="saeShotStatus" class="saeShotStatus">No screenshots attached. You can still paste or type the conversation.</div>`;
     message.insertAdjacentElement('afterend',panel);
     document.getElementById('saeShotInput').addEventListener('change',e=>{addFiles(e.target.files);e.target.value='';});
     document.getElementById('saeShotClear').onclick=()=>{images=[];transcriptCache='';transcriptKey='';renderThumbs();status('Screenshots cleared.');};
+    priorExchange=sessionStorage.getItem('sm_exchange_transcript')||'';
+    document.getElementById('saeNewExchange').onclick=()=>{priorExchange='';sessionStorage.removeItem('sm_exchange_transcript');status('New exchange started.');toast('Conversation context cleared');};
+    document.querySelectorAll('[data-shot-action]').forEach(button=>button.onclick=()=>{screenshotAction=button.dataset.shotAction;document.querySelectorAll('[data-shot-action]').forEach(item=>item.classList.toggle('active',item===button));document.getElementById('saeRemixDraft').classList.toggle('hidden',screenshotAction!=='remix');});
     document.getElementById('saeMySide').onchange=()=>{transcriptCache='';transcriptKey='';};
     document.getElementById('saeShotNote').oninput=()=>{transcriptCache='';transcriptKey='';};
   }
@@ -122,7 +129,10 @@
         if(typed){document.getElementById('replyContext').value=[document.getElementById('replyContext').value.trim(),typed].filter(Boolean).join('\n\n').slice(0,2000);message.value='';}
         if(note){document.getElementById('replyContext').value=[document.getElementById('replyContext').value.trim(),note].filter(Boolean).join('\n\n').slice(0,2000);}
         button.disabled=false;button.innerHTML=buttonHTML;
-        window.startScreenshotSpeakerReview(transcript);
+        const combined=(priorExchange?`${priorExchange}\n\nFOLLOW-UP SCREENSHOT:\n${transcript}`:transcript).slice(-11000);
+        priorExchange=combined;sessionStorage.setItem('sm_exchange_transcript',combined);
+        await window.generateScreenshotExchange(combined,screenshotAction,(document.getElementById('saeShotNote')?.value||'').trim(),(document.getElementById('saeRemixDraft')?.value||'').trim());
+        images=[];transcriptCache='';transcriptKey='';renderThumbs();status('Exchange saved. Add the next screenshots when the conversation continues.','ready');
       }catch(error){
         console.warn('Screenshot reading failed',error);toast(error.message||'Could not read screenshots');status(error.message||'Could not read screenshots');
       }finally{

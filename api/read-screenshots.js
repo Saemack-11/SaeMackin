@@ -4,6 +4,11 @@ const MAX_IMAGES = 4;
 const MAX_DATA_URL_CHARS = 1_250_000;
 const MAX_TOTAL_IMAGE_CHARS = 3_800_000;
 
+export function normalizeMessageSide(value) {
+  const side = typeof value === "string" ? value.trim().toLowerCase() : "";
+  return side === "left" || side === "right" ? side : "right";
+}
+
 function sanitizeString(value, max = 1000) {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
 }
@@ -49,10 +54,9 @@ RULES
 - Never invent missing words, sender names, timestamps, messages, motives or context.
 - If text is cut off or unreadable, write [unclear] instead of guessing.
 - Avoid duplicating messages when screenshots overlap. If an overlap is obvious, include that message only once.
-- Use sender labels based on the supplied side hint:
-  - right = messages visually on the right are ME; left-side messages are THEM unless a visible name clearly identifies someone else.
-  - left = messages visually on the left are ME; right-side messages are THEM unless a visible name clearly identifies someone else.
-  - infer = use visible participant names if reliable; otherwise label by LEFT / RIGHT rather than pretending you know who is Sae.
+- Use sender labels based strictly on the supplied side hint: if my_side is right, right-side bubbles are ME and left-side bubbles are THEM; if my_side is left, left-side bubbles are ME and right-side bubbles are THEM.
+- Read all visible bubbles chronologically, preserve timestamps, recognize overlapping screenshots from one exchange, and do not duplicate repeated messages.
+- Where a bubble side or text cannot be determined, mark it [unclear] and explain the uncertainty in confidence_note. Do not ask the user to label every message.
 - Do not analyze the relationship, give advice, draft a reply, or infer emotion. This route produces evidence only.
 - A context note may clarify the platform or who is who, but it may not override clearly visible screenshot content.
 - Keep the transcript concise and easy for a human to edit.
@@ -74,7 +78,7 @@ export default async function handler(req, res) {
   const body = req.body || {};
   const images = sanitizeImages(body.images);
   const sideRaw = sanitizeString(body.my_side, 10).toLowerCase();
-  const mySide = ["left", "right", "infer"].includes(sideRaw) ? sideRaw : "infer";
+  const mySide = normalizeMessageSide(sideRaw);
   const note = sanitizeString(body.context_note, 700);
 
   if (!images.length) {
@@ -86,7 +90,7 @@ export default async function handler(req, res) {
     const content = [
       {
         type: "input_text",
-        text: `Read these screenshots into conversation evidence.\nMy side hint: ${mySide}.\nOptional context note: ${note || "None"}.\nThere are ${images.length} screenshot(s), supplied in conversation order.`
+        text: `Read these screenshots into conversation evidence.\nMy message side: ${mySide}.\nOptional context note: ${note || "None"}.\nThere are ${images.length} screenshot(s), supplied in conversation order.`
       },
       ...images.map((image, index) => ({
         type: "input_image",
