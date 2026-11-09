@@ -9,7 +9,7 @@
   <title>SaeMackin101</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="assets/icon-180.png">
-  <link rel="stylesheet" href="styles.css?v=46">
+  <link rel="stylesheet" href="styles.css?v=47">
 </head>
 <body>
 <div class="ambient"></div>
@@ -119,6 +119,16 @@
         <div id="emojiPanel" class="quickPanel hidden"><div class="quickPanelHead"><strong>Emoji palette</strong><small>Tap to add to the reply</small></div><div id="emojiChoices" class="emojiChoices"></div></div>
         <div id="voicePanel" class="quickPanel voicePanel hidden"><div class="quickPanelHead"><strong>AI Read Aloud</strong><small>Neural voice · device fallback</small></div><div class="voiceControls"><label>Vibe<select id="voiceVibe"><option value="warm">Warm</option><option value="mature">Mature</option><option value="playful">Playful</option><option value="confident">Confident</option><option value="flirty">Flirty</option><option value="polished">Polished</option><option value="slang">Slang</option></select></label><label>Female voice<select id="voiceSelect"><option value="">Best available female voice</option></select></label><label>Speed<input id="voiceRate" type="range" min="0.82" max="1.08" step="0.02" value="0.94"><span id="voiceRateText">0.94×</span></label></div></div>
         <p id="replyText" aria-live="polite"></p>
+        <section id="sauceMixer" class="sauceMixer hidden" aria-label="Sauce Mixer">
+          <div class="sauceMixerHead"><strong>✦ Sauce Mixer</strong><small>Adjust the feel, then regenerate</small></div>
+          <div class="sauceSliders">
+            <label>Smooth Talk / Sauce <output id="sauceValue">6</output><input data-sauce="sauce" type="range" min="0" max="10" value="6"></label>
+            <label>Millennial Humor <output id="humorValue">5</output><input data-sauce="humor" type="range" min="0" max="10" value="5"></label>
+            <label>Flirtation <output id="flirtValue">4</output><input data-sauce="flirt" type="range" min="0" max="10" value="4"></label>
+            <label>Emotional Depth <output id="depthValue">5</output><input data-sauce="depth" type="range" min="0" max="10" value="5"></label>
+          </div>
+          <button id="applySauce" type="button" class="mini">Regenerate with this mix</button>
+        </section>
         <div id="tweakPanel" class="tweakPanel" aria-busy="false">
           <div class="tweakHead"><div><small>INSTANT RETRY + TWEAK</small><strong>Switch the temperature without starting over</strong></div><span>✦</span></div>
           <div class="tweakChips" aria-label="Quick reply tweaks">
@@ -197,7 +207,7 @@
   </nav>
   <div id="toast" class="toast"></div>
 </div>
-<script src="app.js?v=48"></script>
-<script src="sae-screenshots.js?v=48"></script>
+<script src="app.js?v=49"></script>
+<script src="sae-screenshots.js?v=49"></script>
 </body>
 </html>
